@@ -213,9 +213,16 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileHeader() {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundImage: AssetImage('assets/images/noProfilePhoto.png'),
+        GestureDetector(
+          onTap: () => _selectAndUploadProfilePhoto(),
+          child: CircleAvatar(
+            radius: 50,
+            backgroundImage: _profileData!['profile_photo'] != null &&
+                    _profileData!['profile_photo']!.isNotEmpty
+                ? NetworkImage(_profileData!['profile_photo']!)
+                : AssetImage('assets/images/noProfilePhoto.png')
+                    as ImageProvider,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -241,7 +248,9 @@ class _ProfilePageState extends State<ProfilePage> {
               ElevatedButton.icon(
                 onPressed: () => _selectAndUploadFile(),
                 icon: const Icon(Icons.upload_file),
-                label:  Text(_profileData!['resume'] ?? 'Upload resume'),
+                label: Text(_profileData!['resume'] != null
+                    ? _profileData!['resume']!.split('_').last
+                    : 'Upload resume'),
               ),
             ],
           ),
@@ -250,29 +259,59 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
- Future<void> _selectAndUploadFile() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['pdf', 'doc', 'docx'],
-  );
+  Future<void> _selectAndUploadProfilePhoto() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+    );
 
-  if (result != null && result.files.isNotEmpty) {
-    File file = File(result.files.single.path!);
+    if (result != null && result.files.isNotEmpty) {
+      File file = File(result.files.single.path!);
 
-    // Upload the file
-    String? fileUrl = await ApiService.uploadFile(file);
+      // Upload the file
+      String? fileUrl = await ApiService.uploadFile(file);
 
-    if (fileUrl != null && fileUrl.isNotEmpty) {
-      // Update the profile with the new file URL
-      _profileData!['resume'] = fileUrl;
-      await _updateProfile();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to upload file. Please try again.')),
-      );
+      if (fileUrl != null && fileUrl.isNotEmpty) {
+        // Update the profile with the new file URL
+        setState(() {
+          _profileData!['profile_photo'] = fileUrl;
+        });
+        await _updateProfile();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Failed to upload profile photo. Please try again.')),
+        );
+      }
     }
   }
-}
+
+  Future<void> _selectAndUploadFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      File file = File(result.files.single.path!);
+
+      // Upload the file
+      String? fileUrl = await ApiService.uploadFile(file);
+
+      if (fileUrl != null && fileUrl.isNotEmpty) {
+        // Update the profile with the new file URL
+        _profileData!['resume'] = fileUrl;
+        await _updateProfile();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to upload file. Please try again.')),
+        );
+      }
+    }
+  }
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
