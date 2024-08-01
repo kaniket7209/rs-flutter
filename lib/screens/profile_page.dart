@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:right_ship/screens/pdf_view_screen.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   final String employeeId;
@@ -88,122 +89,298 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildProfileHeader(),
-                    _buildSectionTitle('Date of Availability'),
-                    _buildDetailTile(
-                        'Date of Availability',
-                        'dateOfAvailability',
-                        _profileData!['dateOfAvailability'] ?? '',
-                        isDate: true),
-                    _buildSectionTitle('Contact Detail'),
-                    _buildDetailTile('Enter your full name', 'name',
-                        _profileData!['name'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('Enter your designation', 'designation',
-                        _profileData!['designation'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'Email ID', 'emailid', _profileData!['emailid'] ?? '',
-                        inputType: TextInputType.emailAddress),
-                    _buildDetailTile('Contact', 'mobile_no',
-                        _profileData!['mobile_no'] ?? '',
-                        inputType: TextInputType.phone),
-                    _buildDetailTile('WhatsApp Number', 'whatsappNumber',
-                        _profileData!['whatsappNumber'] ?? '',
-                        inputType: TextInputType.phone),
-                    _buildDetailTile('Date of Birth', 'dateOfBirth',
-                        _profileData!['dateOfBirth'] ?? '',
-                        isDate: true),
-                    _buildDropdown(
-                        'Gender',
-                        'gender',
-                        _profileData!['gender'] ?? '',
-                        ['Male', 'Female', 'Prefer not to say']),
-                    _buildSectionTitle('Experience'),
-                    _buildDetailTile(
-                        'Total Sea Experience (years)',
-                        'totalSeaExperience',
-                        _profileData!['totalSeaExperience'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'Total Last Rank Experience',
-                        'totalLastRankExperience',
-                        _profileData!['totalLastRankExperience'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('Present Rank', 'presentRank',
-                        _profileData!['presentRank'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('Last Rank', 'lastRank',
-                        _profileData!['lastRank'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('Type of Ship Experience'),
-                    _buildDetailTile('Ship Name', 'shipName',
-                        _profileData!['shipName'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('Last Vessel Type'),
-                    _buildDetailTile('Ship Name', 'lastVesselType',
-                        _profileData!['lastVesselType'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('Vessel Applied For'),
-                    _buildDetailTile('Ship Name', 'vesselAppliedFor',
-                        _profileData!['vesselAppliedFor'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('License Holding'),
-                    _buildDetailTile('COC', 'coc', _profileData!['coc'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('COP', 'cop', _profileData!['cop'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('Watch Keeping', 'watchKeeping',
-                        _profileData!['watchKeeping'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('Address'),
-                    _buildDetailTile('Address 1', 'address1',
-                        _profileData!['address1'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('Address 2', 'address2',
-                        _profileData!['address2'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'City', 'city', _profileData!['city'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'State', 'state', _profileData!['state'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'Country', 'country', _profileData!['country'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'Pincode', 'pincode', _profileData!['pincode'] ?? '',
-                        inputType: TextInputType.number),
-                    _buildDetailTile('Nationality', 'nationality',
-                        _profileData!['nationality'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('Co-win Vaccination'),
-                    _buildDetailTile('1st Dose', 'firstDose',
-                        _profileData!['firstDose'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile('2nd Dose', 'secondDose',
-                        _profileData!['secondDose'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'Booster', 'booster', _profileData!['booster'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildSectionTitle('Others'),
-                    _buildDetailTile(
-                        'Height (Cm)', 'height', _profileData!['height'] ?? '',
-                        inputType: TextInputType.number),
-                    _buildDetailTile(
-                        'Weight (Kg)', 'weight', _profileData!['weight'] ?? '',
-                        inputType: TextInputType.number),
-                    _buildDetailTile('BMI', 'bmi', _profileData!['bmi'] ?? '',
-                        inputType: TextInputType.number),
-                    _buildDetailTile(
-                        'SID Card', 'sidCard', _profileData!['sidCard'] ?? '',
-                        inputType: TextInputType.text),
-                    _buildDetailTile(
-                        'Willing to accept lower rank',
-                        'acceptLowerRank',
-                        _profileData!['acceptLowerRank'] ?? '',
-                        inputType: TextInputType.text),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDetailTile(
+                              'Date of Availability',
+                              'dateOfAvailability',
+                              _profileData!['dateOfAvailability'] ?? '',
+                              isDate: true),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Contact Detail'),
+                          _buildDetailTile('Enter your full name', 'name',
+                              _profileData!['name'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('Enter your designation',
+                              'designation', _profileData!['designation'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('Email ID', 'emailid',
+                              _profileData!['emailid'] ?? '',
+                              inputType: TextInputType.emailAddress),
+                          _buildDetailTile('Contact', 'mobile_no',
+                              _profileData!['mobile_no'] ?? '',
+                              inputType: TextInputType.phone),
+                          _buildDetailTile('WhatsApp Number', 'whatsappNumber',
+                              _profileData!['whatsappNumber'] ?? '',
+                              inputType: TextInputType.phone),
+                          _buildDetailTile('Date of Birth', 'dateOfBirth',
+                              _profileData!['dateOfBirth'] ?? '',
+                              isDate: true),
+                          _buildDropdown(
+                              'Gender',
+                              'gender',
+                              _profileData!['gender'] ?? '',
+                              ['Male', 'Female', 'Prefer not to say']),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Experience'),
+                          _buildDetailTile(
+                              'Total Sea Experience (years)',
+                              'totalSeaExperience',
+                              _profileData!['totalSeaExperience'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'Total Last Rank Experience',
+                              'totalLastRankExperience',
+                              _profileData!['totalLastRankExperience'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('Present Rank', 'presentRank',
+                              _profileData!['presentRank'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('Last Rank', 'lastRank',
+                              _profileData!['lastRank'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Type of Ship Experience'),
+                          _buildDetailTile('Ship Name', 'shipName',
+                              _profileData!['shipName'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Last Vessel Type'),
+                          _buildDetailTile('Ship Name', 'lastVesselType',
+                              _profileData!['lastVesselType'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Vessel Applied For'),
+                          _buildDetailTile('Ship Name', 'vesselAppliedFor',
+                              _profileData!['vesselAppliedFor'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                   SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('License Holding'),
+                          _buildDetailTile('COC', 'coc', _profileData!['coc'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('COP', 'cop', _profileData!['cop'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('Watch Keeping', 'watchKeeping',
+                              _profileData!['watchKeeping'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Address'),
+                          _buildDetailTile('Address 1', 'address1',
+                              _profileData!['address1'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('Address 2', 'address2',
+                              _profileData!['address2'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'City', 'city', _profileData!['city'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'State', 'state', _profileData!['state'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'Country', 'country', _profileData!['country'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'Pincode', 'pincode', _profileData!['pincode'] ?? '',
+                              inputType: TextInputType.number),
+                          _buildDetailTile('Nationality', 'nationality',
+                              _profileData!['nationality'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Co-win Vaccination'),
+                          _buildDetailTile('1st Dose', 'firstDose',
+                              _profileData!['firstDose'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile('2nd Dose', 'secondDose',
+                              _profileData!['secondDose'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'Booster', 'booster', _profileData!['booster'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 15,),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.15),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Others'),
+                          _buildDetailTile(
+                              'Height (Cm)', 'height', _profileData!['height'] ?? '',
+                              inputType: TextInputType.number),
+                          _buildDetailTile(
+                              'Weight (Kg)', 'weight', _profileData!['weight'] ?? '',
+                              inputType: TextInputType.number),
+                          _buildDetailTile('BMI', 'bmi', _profileData!['bmi'] ?? '',
+                              inputType: TextInputType.number),
+                          _buildDetailTile(
+                              'SID Card', 'sidCard', _profileData!['sidCard'] ?? '',
+                              inputType: TextInputType.text),
+                          _buildDetailTile(
+                              'Willing to accept lower rank',
+                              'acceptLowerRank',
+                              _profileData!['acceptLowerRank'] ?? '',
+                              inputType: TextInputType.text),
+                        ],
+                      ),
+                    ),
+                SizedBox(height: 15,),
                   ],
                 ),
               ),
@@ -263,13 +440,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           "_profileData!['resume']  ${_profileData!['resume']!}");
                       if (_profileData!['resume'] != null) {
                         // Open the PDF in view mode
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PdfViewScreen(pdfUrl: _profileData!['resume']!),
-                          ),
-                        );
+
+                        _openPdf(_profileData!['resume']!);
                       }
                     },
                     child: Icon(Icons.picture_as_pdf, color: Colors.red),
@@ -356,7 +528,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 18,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -396,14 +568,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildDetailTile(String label, String key, String value,
       {TextInputType inputType = TextInputType.text, bool isDate = false}) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+      contentPadding: const EdgeInsets.symmetric(vertical: 1.0),
       title: Text(
         label,
-        style: const TextStyle(fontSize: 16, color: Colors.grey),
+        style: const TextStyle(
+            fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
       ),
       subtitle: Text(
         value.isNotEmpty ? value : 'Not available',
-        style: const TextStyle(fontSize: 16),
+        style: const TextStyle(fontSize: 18,fontFamily: 'Poppins'),
       ),
       trailing: IconButton(
         icon: const Icon(Icons.edit),
@@ -468,5 +641,18 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  Future<void> _openPdf(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      print('Error opening URL: $e');
+    }
   }
 }
