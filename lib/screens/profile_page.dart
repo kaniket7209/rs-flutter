@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:right_ship/screens/pdf_view_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -211,51 +212,88 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileHeader() {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () => _selectAndUploadProfilePhoto(),
-          child: CircleAvatar(
-            radius: 50,
-            backgroundImage: _profileData!['profile_photo'] != null &&
-                    _profileData!['profile_photo']!.isNotEmpty
-                ? NetworkImage(_profileData!['profile_photo']!)
-                : AssetImage('assets/images/noProfilePhoto.png')
-                    as ImageProvider,
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () => _selectAndUploadProfilePhoto(),
+            child: CircleAvatar(
+              radius: 50,
+              backgroundImage: _profileData!['profile_photo'] != null &&
+                      _profileData!['profile_photo']!.isNotEmpty
+                  ? NetworkImage(_profileData!['profile_photo']!)
+                  : AssetImage('assets/images/noProfilePhoto.png')
+                      as ImageProvider,
+            ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _profileData!['name'] ?? 'Name not available',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _profileData!['designation'] ?? 'Designation not available',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: () => _selectAndUploadFile(),
-                icon: const Icon(Icons.upload_file),
-                label: Text(_profileData!['resume'] != null
-                    ? _profileData!['resume']!.split('_').last
-                    : 'Upload resume'),
-              ),
-            ],
+          const SizedBox(height: 16),
+          Text(
+            _profileData!['name'] ?? 'Name not available',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            _profileData!['designation'] ?? 'Designation not available',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+              padding: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.black.withOpacity(0.15),
+                  width: 3,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      print(
+                          "_profileData!['resume']  ${_profileData!['resume']!}");
+                      if (_profileData!['resume'] != null) {
+                        // Open the PDF in view mode
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PdfViewScreen(pdfUrl: _profileData!['resume']!),
+                          ),
+                        );
+                      }
+                    },
+                    child: Icon(Icons.picture_as_pdf, color: Colors.red),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Text(
+                      _profileData!['resume'] != null
+                          ? _profileData!['resume']!.split('_').last
+                          : 'Upload resume',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _selectAndUploadFile(),
+                    child: Image.asset('assets/images/Edit.png',
+                        height: 24, width: 24),
+                  ),
+                ],
+              ))
+        ],
+      ),
     );
   }
 
