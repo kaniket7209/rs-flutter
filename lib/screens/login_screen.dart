@@ -107,7 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : GestureDetector(
                         onTap: _sendOTP,
-                        child: Container(
+                        child: 
+                        Container(
                             width: MediaQuery.sizeOf(context).width * 0.8,
                             padding: EdgeInsets.symmetric(vertical: 15),
                             decoration: BoxDecoration(
@@ -123,6 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold),
                             ))),
+                      
                       ),
                 const SizedBox(height: 40),
                 Divider(),

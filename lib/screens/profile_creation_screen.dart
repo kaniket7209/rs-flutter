@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../services/api_service.dart';
 import 'address_screen.dart';
 
@@ -13,7 +14,7 @@ class ProfileCreationScreen extends StatefulWidget {
 class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  
+
   final Map<String, dynamic> _profileData = {
     "name": "",
     "surname": "",
@@ -74,16 +75,26 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 40),
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    textAlign: TextAlign.left,
-                    'Basic Detail',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Poppins'),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        textAlign: TextAlign.left,
+                        'Basic Detail',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Poppins'),
+                      ),
+                    ),
+                    // IconButton(
+                    //   icon: Icon(Icons.logout),
+                    //   onPressed: () => ApiService.logout(context),
+                    // ),
+                    GestureDetector(onTap:()=> ApiService.logout(context),child: Text('Log Out'))
+                  ],
                 ),
                 const SizedBox(height: 20),
                 _buildTextField("Name *", "name"),
@@ -100,14 +111,28 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                     child: CircularProgressIndicator(),
                   ),
                 if (!_isLoading)
-                  ElevatedButton(
-                    onPressed: _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: const Text('Next'),
+                  GestureDetector(
+                    onTap: _submit,
+                   
+                    child: Container(
+                            width: MediaQuery.sizeOf(context).width * 0.8,
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              color: Color(0xff2E5C99),
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            child: Center(
+                                child: const Text(
+                              'Next',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ))),
+                      
                   ),
+                  SizedBox(height: 20,)
               ],
             ),
           ),

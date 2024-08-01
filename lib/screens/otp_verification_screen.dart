@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:right_ship/screens/profile_creation_screen.dart';
+// import 'package:right_ship/screens/profile_creation_screen.dart';
+import 'package:right_ship/screens/profile_page.dart';
 import '../services/api_service.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
@@ -36,35 +37,37 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     });
 
     String otp = _otpControllers.map((controller) => controller.text).join();
-    bool success = await ApiService.verifyOTP(widget.phoneNumber, otp);
+    var success = await ApiService.verifyOTP(widget.phoneNumber, otp);
 
     setState(() {
       _isLoading = false;
     });
 
-     if (success) {
-    var data;
-    if (widget.origin == 'register') {
-      data = await ApiService.register(widget.phoneNumber);
-    } else {
-      data = await ApiService.login(widget.phoneNumber);
-    }
+    if (success['code'] == 200) {
+      var data;
+      if (widget.origin == 'register') {
+        data = await ApiService.register(widget.phoneNumber);
+      } else {
+        data = await ApiService.login(widget.phoneNumber);
+      }
 
-    print("data is $data");
+      print("data is $data");
 
-    if (data['code'] == 200) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfileCreationScreen(employeeId: data['employee']['_id']),
-        ),
-      );
+      if (data != null && data['code'] == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                // ProfileCreationScreen(employeeId: data['employee']['_id']),
+                ProfilePage(employeeId: data['employee']['_id'])
+          ),
+        );
+      } else {
+        _showErrorToast(data['msg']);
+      }
     } else {
-      _showErrorToast(data['msg'] ?? 'An error occurred. Please try again.');
+      _showErrorToast(success['message']);
     }
-  } else {
-    _showErrorToast('Invalid OTP. Please try again.');
-  }
   }
 
   void _resendOTP() async {

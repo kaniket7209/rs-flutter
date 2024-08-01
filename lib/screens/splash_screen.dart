@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'package:right_ship/screens/login_screen.dart';
+import 'package:right_ship/screens/profile_creation_screen.dart';
+import 'package:right_ship/screens/profile_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -12,25 +13,39 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _checkLoginStatus();
   }
 
-  _navigateToLogin() async {
-    await Future.delayed(const Duration(seconds: 2), () {});
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final employeeId = prefs.getString('employeeId');
+    
+    if (employeeId != null) {
+      
+      // User is logged in, navigate to profile screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfilePage(employeeId: employeeId),
+          // builder: (context) => ProfileCreationScreen(employeeId: employeeId),
+        ),
+      );
+    } else {
+      // User is not logged in, navigate to login screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text(
-          'Right Ship App',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
+        child: CircularProgressIndicator(),
       ),
     );
   }

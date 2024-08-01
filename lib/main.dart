@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SplashScreen(),
+      home:  SplashScreen(),
       debugShowCheckedModeBanner: false,
       routes: {
         '/login': (context) => const LoginScreen(),
