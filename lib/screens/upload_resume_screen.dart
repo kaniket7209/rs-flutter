@@ -83,6 +83,8 @@ class _UploadResumeScreenState extends State<UploadResumeScreen> {
       );
     }
   }
+  
+  
   void _skip() {
     
       Navigator.push(

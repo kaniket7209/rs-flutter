@@ -11,7 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   final String employeeId;
-   final Map<String, dynamic> profileData;
+  final Map<String, dynamic> profileData;
 
   const ProfilePage({required this.employeeId, required this.profileData});
 
@@ -73,6 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Container(
           alignment: Alignment.topLeft,
           child: Image.asset(
@@ -90,26 +91,58 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: _profileData == null
           ? const Center(child: CircularProgressIndicator())
-          :
-           SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+          : SingleChildScrollView(
+              child: Container(
+                color: Color(0xffF1F1F1),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildProfileHeader(),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                        padding: EdgeInsets.all(25),
+                        color: Colors.white,
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                print(
+                                    "_profileData!['resume']  ${_profileData!['resume']!}");
+                                if (_profileData!['resume'] != null) {
+                                  // Open the PDF in view mode
+
+                                  _openPdf(_profileData!['resume']!);
+                                }
+                              },
+                              child:
+                                  Icon(Icons.picture_as_pdf, color: Colors.red),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: Text(
+                                _profileData!['resume'] != null
+                                    ? _profileData!['resume']!.split('_').last
+                                    : 'Upload resume',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => _selectAndUploadFile(),
+                              child: Image.asset('assets/images/Edit.png',
+                                  height: 24, width: 24),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,17 +156,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,15 +169,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           _buildDetailTile('Enter your full name', 'name',
                               _profileData!['name'] ?? '',
                               inputType: TextInputType.text),
-                          _buildDetailTile('Enter your designation',
-                              'designation', _profileData!['designation'] ?? '',
-                              inputType: TextInputType.text),
-                          _buildDetailTile('Email ID', 'emailid',
-                              _profileData!['emailid'] ?? '',
+                          _buildDetailTile(
+                              'Email ID', 'email', _profileData!['email'] ?? '',
                               inputType: TextInputType.emailAddress),
-                          _buildDetailTile('Contact', 'mobile_no',
-                              _profileData!['mobile_no'] ?? '',
-                              inputType: TextInputType.phone),
                           _buildDetailTile('WhatsApp Number', 'whatsappNumber',
                               _profileData!['whatsappNumber'] ?? '',
                               inputType: TextInputType.phone),
@@ -166,17 +187,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,17 +217,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,17 +234,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,17 +251,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,17 +268,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,17 +291,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,17 +326,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,17 +349,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.15),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,13 +380,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                   ],
                 ),
               ),
             ),
-   
     );
   }
 
@@ -436,63 +408,42 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            _profileData!['name'] ?? 'Name not available',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          if (_profileData!['name'] != null &&
+              _profileData!['surname'] != null) ...[
+            Text(
+              '${_profileData!['name']} ${_profileData!['surname']}',
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
+          ] else ...[
+            Text(
+              'Name not available',
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
           const SizedBox(height: 4),
-          Text(
-            _profileData!['designation'] ?? 'Designation not available',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xff1F5882),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+            child: Text(
+              _profileData!['presentRank'] ?? 'Designation not available',
+              style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(height: 8),
-          Container(
-              padding: EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.black.withOpacity(0.15),
-                  width: 3,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      print(
-                          "_profileData!['resume']  ${_profileData!['resume']!}");
-                      if (_profileData!['resume'] != null) {
-                        // Open the PDF in view mode
-
-                        _openPdf(_profileData!['resume']!);
-                      }
-                    },
-                    child: Icon(Icons.picture_as_pdf, color: Colors.red),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: Text(
-                      _profileData!['resume'] != null
-                          ? _profileData!['resume']!.split('_').last
-                          : 'Upload resume',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _selectAndUploadFile(),
-                    child: Image.asset('assets/images/Edit.png',
-                        height: 24, width: 24),
-                  ),
-                ],
-              ))
+          //resume
         ],
       ),
     );

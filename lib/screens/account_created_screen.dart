@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'package:right_ship/screens/profile_page.dart';
 
-class AccountCreatedScreen extends StatelessWidget {
+class AccountCreatedScreen extends StatefulWidget {
   final Map<String, dynamic> profileData;
 
   const AccountCreatedScreen({required this.profileData, super.key});
 
-  void _completeProfile(BuildContext context) async {
-    bool success = await ApiService.updateProfile(profileData);
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile.')),
-      );
-    }
+  @override
+  _AccountCreatedScreenState createState() => _AccountCreatedScreenState();
+}
+
+class _AccountCreatedScreenState extends State<AccountCreatedScreen> {
+  void _submit() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(
+          profileData: widget.profileData,
+          employeeId: widget.profileData['_id'],
+        ),
+      ),
+    );
   }
 
   @override
@@ -27,23 +31,45 @@ class AccountCreatedScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Your Account Has Been Created',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Center(
+              child: const Text(
+                'Your Account Has Been ',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
+              ),
             ),
-            const SizedBox(height: 20),
+            Center(
+              child: const Text(
+                'Created ',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
+              ),
+            ),
+            const SizedBox(height: 40),
             const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey,
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _completeProfile(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                minimumSize: const Size(double.infinity, 50),
+            const SizedBox(height: 40),
+            GestureDetector(
+              onTap: _submit,
+              child: Container(
+                width: MediaQuery.sizeOf(context).width * 0.8,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: const Color(0xff2E5C99),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Search job',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-              child: const Text('Search Job'),
             ),
           ],
         ),
