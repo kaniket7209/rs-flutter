@@ -97,6 +97,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                     SizedBox(
+                      height: 10,
+                    ),
                     _buildProfileHeader(),
                     SizedBox(
                       height: 10,
