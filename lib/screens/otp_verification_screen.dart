@@ -59,7 +59,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
           MaterialPageRoute(
             builder: (context) =>
                 // ProfileCreationScreen(employeeId: data['employee']['_id']),
-                ProfilePage(employeeId: data['employee']['_id'])
+                ProfilePage(employeeId: data['employee']['_id'], profileData: data['employee'],)
           ),
         );
       } else {

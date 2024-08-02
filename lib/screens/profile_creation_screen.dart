@@ -59,16 +59,17 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.only(
-          left: 30.0,
-          right: 30.0,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Padding(
+      padding: EdgeInsets.only(
+        left: 30.0,
+        right: 30.0,
+        // bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: IntrinsicHeight(
           child: Form(
             key: _formKey,
             child: Column(
@@ -81,19 +82,18 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                     Container(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        textAlign: TextAlign.left,
                         'Basic Detail',
                         style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Poppins'),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
                     ),
-                    // IconButton(
-                    //   icon: Icon(Icons.logout),
-                    //   onPressed: () => ApiService.logout(context),
-                    // ),
-                    GestureDetector(onTap:()=> ApiService.logout(context),child: Text('Log Out'))
+                    GestureDetector(
+                      onTap: () => ApiService.logout(context),
+                      child: Text('Log Out'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -113,76 +113,66 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                 if (!_isLoading)
                   GestureDetector(
                     onTap: _submit,
-                   
                     child: Container(
-                            width: MediaQuery.sizeOf(context).width * 0.8,
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            decoration: BoxDecoration(
-                              color: Color(0xff2E5C99),
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                            child: Center(
-                                child: const Text(
-                              'Next',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
-                            ))),
-                      
+                      width: MediaQuery.sizeOf(context).width * 0.8,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        color: Color(0xff2E5C99),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: Center(
+                        child: const Text(
+                          'Next',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  SizedBox(height: 20,)
+                SizedBox(height: 20),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
+    ),
+  );
+}
+  
+  
   Widget _buildTextField(String label, String key) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 14,
-            ),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: label,
+          fillColor: const Color(0xffFBF8F8), // Light grey color
+          filled: true,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
           ),
-          const SizedBox(height: 8.0),
-          TextFormField(
-            decoration: InputDecoration(
-              fillColor: const Color(0xffFBF8F8), // Light grey color
-              filled: true,
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
-              border: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff1F5882)),
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '$label is required';
-              }
-              return null;
-            },
-            onSaved: (value) {
-              _profileData[key] = value;
-            },
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
           ),
-        ],
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff1F5882)),
+          ),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          return null;
+        },
+        onSaved: (value) {
+          _profileData[key] = value;
+        },
       ),
     );
   }

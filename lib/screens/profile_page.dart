@@ -11,8 +11,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   final String employeeId;
+   final Map<String, dynamic> profileData;
 
-  const ProfilePage({required this.employeeId});
+  const ProfilePage({required this.employeeId, required this.profileData});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();

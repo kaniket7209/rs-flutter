@@ -1,0 +1,22 @@
+{
+    "_id": "66ab7787120d829b38c575c3",
+    "created_date": "Thu, 01 Aug 2024 11:54:47 GMT",
+    "dateOfAvailability": "02 Aug, 2024",
+    "dateOfBirth": "24 Aug, 1999",
+    "dateofavailability": "24 Aug, 2024",
+    "designation": "Pilot",
+    "emailid": "kaniket7209@gmail.com",
+    "gender": "Male",
+    "height": "55",
+    "joined_date": "01 Aug, 2024",
+    "mobile_no": "6206630515",
+    "presentRank": "Pilot",
+    "profile_photo": "https://rs-file-uploads.s3.amazonaws.com/6b6eabc4-6b15-4ab2-baeb-47f176fb784c_1000000019.png",
+    "resume": "https://rs-file-uploads.s3.amazonaws.com/ff57ea97-19ec-4703-8262-8451c351fe06_resume_aniket.pdf",
+    "status": "active",
+    "totalLastRankExperience": "2",
+    "totalSeaExperience": "4",
+    "updated_date": "Fri, 02 Aug 2024 11:47:21 GMT",
+    "weight": "58",
+    "whatsappNumber": "6206630515"
+}

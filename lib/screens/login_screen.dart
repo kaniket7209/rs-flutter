@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:right_ship/screens/otp_verification_screen.dart';
+import 'package:right_ship/screens/profile_creation_screen.dart';
+import 'package:right_ship/screens/profile_page.dart';
+import 'package:right_ship/screens/sea_experience_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,16 +29,15 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = false;
     });
     if (success) {
-     Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => OTPVerificationScreen(
-      phoneNumber: _phoneController.text,
-      origin: 'login',
-    ),
-  ),
-);
-   
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OTPVerificationScreen(
+            phoneNumber: _phoneController.text,
+            origin: 'login',
+          ),
+        ),
+      );
     } else {
       _showErrorToast('Failed to send OTP. Please try again.');
     }
@@ -44,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,8 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : GestureDetector(
                         onTap: _sendOTP,
-                        child: 
-                        Container(
+                        child: Container(
                             width: MediaQuery.sizeOf(context).width * 0.8,
                             padding: EdgeInsets.symmetric(vertical: 15),
                             decoration: BoxDecoration(
@@ -124,7 +129,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold),
                             ))),
-                      
                       ),
                 const SizedBox(height: 40),
                 Divider(),
