@@ -72,7 +72,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Container(
+          alignment: Alignment.topLeft,
+          child: Image.asset(
+            'assets/images/logo.png', // Replace with your actual image path
+            height: 40, // Adjust the height as needed
+          ),
+        ),
+        centerTitle: true, // Center the image in the AppBar
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -82,7 +89,8 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: _profileData == null
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+          :
+           SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -192,7 +200,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -213,7 +223,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -234,7 +246,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -255,7 +269,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                   SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -270,9 +286,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildSectionTitle('License Holding'),
-                          _buildDetailTile('COC', 'coc', _profileData!['coc'] ?? '',
+                          _buildDetailTile(
+                              'COC', 'coc', _profileData!['coc'] ?? '',
                               inputType: TextInputType.text),
-                          _buildDetailTile('COP', 'cop', _profileData!['cop'] ?? '',
+                          _buildDetailTile(
+                              'COP', 'cop', _profileData!['cop'] ?? '',
                               inputType: TextInputType.text),
                           _buildDetailTile('Watch Keeping', 'watchKeeping',
                               _profileData!['watchKeeping'] ?? '',
@@ -280,7 +298,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -307,11 +327,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           _buildDetailTile(
                               'State', 'state', _profileData!['state'] ?? '',
                               inputType: TextInputType.text),
-                          _buildDetailTile(
-                              'Country', 'country', _profileData!['country'] ?? '',
+                          _buildDetailTile('Country', 'country',
+                              _profileData!['country'] ?? '',
                               inputType: TextInputType.text),
-                          _buildDetailTile(
-                              'Pincode', 'pincode', _profileData!['pincode'] ?? '',
+                          _buildDetailTile('Pincode', 'pincode',
+                              _profileData!['pincode'] ?? '',
                               inputType: TextInputType.number),
                           _buildDetailTile('Nationality', 'nationality',
                               _profileData!['nationality'] ?? '',
@@ -319,7 +339,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -340,13 +362,15 @@ class _ProfilePageState extends State<ProfilePage> {
                           _buildDetailTile('2nd Dose', 'secondDose',
                               _profileData!['secondDose'] ?? '',
                               inputType: TextInputType.text),
-                          _buildDetailTile(
-                              'Booster', 'booster', _profileData!['booster'] ?? '',
+                          _buildDetailTile('Booster', 'booster',
+                              _profileData!['booster'] ?? '',
                               inputType: TextInputType.text),
                         ],
                       ),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
@@ -361,16 +385,17 @@ class _ProfilePageState extends State<ProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildSectionTitle('Others'),
-                          _buildDetailTile(
-                              'Height (Cm)', 'height', _profileData!['height'] ?? '',
+                          _buildDetailTile('Height (Cm)', 'height',
+                              _profileData!['height'] ?? '',
+                              inputType: TextInputType.number),
+                          _buildDetailTile('Weight (Kg)', 'weight',
+                              _profileData!['weight'] ?? '',
                               inputType: TextInputType.number),
                           _buildDetailTile(
-                              'Weight (Kg)', 'weight', _profileData!['weight'] ?? '',
+                              'BMI', 'bmi', _profileData!['bmi'] ?? '',
                               inputType: TextInputType.number),
-                          _buildDetailTile('BMI', 'bmi', _profileData!['bmi'] ?? '',
-                              inputType: TextInputType.number),
-                          _buildDetailTile(
-                              'SID Card', 'sidCard', _profileData!['sidCard'] ?? '',
+                          _buildDetailTile('SID Card', 'sidCard',
+                              _profileData!['sidCard'] ?? '',
                               inputType: TextInputType.text),
                           _buildDetailTile(
                               'Willing to accept lower rank',
@@ -380,11 +405,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                   ],
                 ),
               ),
             ),
+   
     );
   }
 
@@ -572,11 +600,14 @@ class _ProfilePageState extends State<ProfilePage> {
       title: Text(
         label,
         style: const TextStyle(
-            fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+            fontSize: 16,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins'),
       ),
       subtitle: Text(
         value.isNotEmpty ? value : 'Not available',
-        style: const TextStyle(fontSize: 18,fontFamily: 'Poppins'),
+        style: const TextStyle(fontSize: 18, fontFamily: 'Poppins'),
       ),
       trailing: IconButton(
         icon: const Icon(Icons.edit),
