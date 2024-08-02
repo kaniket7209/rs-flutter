@@ -37,13 +37,13 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
         _isLoading = true;
       });
 
-      bool success = await ApiService.updateProfile(_profileData);
+      var success = await ApiService.updateProfile(_profileData);
 
       setState(() {
         _isLoading = false;
       });
 
-      if (success) {
+      if (success['code'] == 200) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -64,6 +64,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     body: Padding(
       padding: EdgeInsets.only(
+        top: 20,
         left: 30.0,
         right: 30.0,
         // bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -99,12 +100,11 @@ Widget build(BuildContext context) {
                 const SizedBox(height: 20),
                 _buildTextField("Name *", "name"),
                 _buildTextField("Surname *", "surname"),
-                _buildTextField("Contact Number *", "contactNumber"),
                 _buildTextField("Email *", "email"),
                 _buildTextField("WhatsApp Number", "whatsappNumber"),
-                _buildTextField("Date Of Birth *", "dateOfBirth"),
-                _buildTextField("Gender *", "gender"),
-                _buildTextField("Date of Availability", "dateOfAvailability"),
+                _buildDateField("Date Of Birth *", "dateOfBirth"),
+                _buildDropdownField("Gender *", "gender", ["Male", "Female", "Prefer not to say"]),
+                _buildDateField("Date of Availability", "dateOfAvailability"),
                 const SizedBox(height: 20),
                 if (_isLoading)
                   Center(
@@ -143,37 +143,148 @@ Widget build(BuildContext context) {
   );
 }
   
-  
-  Widget _buildTextField(String label, String key) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: TextFormField(
-        decoration: InputDecoration(
-          labelText: label,
-          fillColor: const Color(0xffFBF8F8), // Light grey color
-          filled: true,
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff1F5882)),
-          ),
+
+ Widget _buildDropdownField(String label, String key, List<String> items) {
+  String? initialValue = _profileData[key];
+
+  // If the initial value is not in the items list, set it to null
+  if (!items.contains(initialValue)) {
+    initialValue = null;
+  }
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    child: DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: label,
+        
+        fillColor: const Color(0xffFBF8F8), // Light grey color
+        filled: true,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+        border: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
         ),
-        validator: (value) {
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xff1F5882)),
+        ),
+      ),
+      value: initialValue, // Set the initial value
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item,style: TextStyle(fontWeight: FontWeight.normal),),
+        );
+      }).toList(),
+      validator: (value) {
+        if (label.contains('*')) {
           if (value == null || value.isEmpty) {
             return '$label is required';
           }
-          return null;
-        },
-        onSaved: (value) {
+        }
+        return null;
+      },
+      onChanged: (value) {
+        setState(() {
           _profileData[key] = value;
-        },
+        });
+      },
+      onSaved: (value) {
+        _profileData[key] = value;
+      },
+    ),
+  );
+}
+  Widget _buildDateField(String label, String key) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    child: GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2101),
+        );
+        if (pickedDate != null) {
+          setState(() {
+            _profileData[key] = pickedDate.toLocal().toString().split(' ')[0];
+          });
+        }
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          decoration: InputDecoration(
+            labelText: label,
+            fillColor: const Color(0xffFBF8F8), // Light grey color
+            filled: true,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+            border: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xff1F5882)),
+            ),
+          ),
+          validator: (value) {
+            if (label.contains('*')) {
+              if (value == null || value.isEmpty) {
+                return '$label is required';
+              }
+            }
+            return null;
+          },
+          controller: TextEditingController(
+            text: _profileData[key],
+          ),
+          onSaved: (value) {
+            _profileData[key] = value;
+          },
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
+  
+  Widget _buildTextField(String label, String key) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    child: TextFormField(
+      decoration: InputDecoration(
+        labelText: label,
+        fillColor: const Color(0xffFBF8F8), // Light grey color
+        filled: true,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+        border: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xff1F5882)),
+        ),
+      ),
+      validator: (value) {
+        if (label.contains('*')) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+        }
+        return null;
+      },
+      onSaved: (value) {
+        _profileData[key] = value;
+      },
+    ),
+  );
+}
 }

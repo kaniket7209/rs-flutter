@@ -126,6 +126,23 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
+      final prefs = await SharedPreferences.getInstance();
+    String? existingEmployeeData = prefs.getString('employee_data');
+
+    if (existingEmployeeData != null) {
+      // Parse the existing data
+      Map<String, dynamic> existingDataMap = json.decode(existingEmployeeData);
+
+      // Merge the new data with the existing data
+      existingDataMap.addAll(profileData);
+
+      // Save the merged data back to SharedPreferences
+      await prefs.setString('employee_data', jsonEncode(existingDataMap));
+    } else {
+      // Save the new data if no existing data
+      await prefs.setString('employee_data', jsonEncode(profileData));
+    }
+
       print("resUpdProfile  $responseBody");
       return responseBody;
     } else {
