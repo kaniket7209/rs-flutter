@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:right_ship/screens/sea_experience_screen.dart';
 import '../services/api_service.dart';
-import 'address_screen.dart';
+
 
 class ProfileCreationScreen extends StatefulWidget {
   final String employeeId;
@@ -18,12 +18,12 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
 
   final Map<String, dynamic> _profileData = {
     "name": "",
-    "surname": "",
     "email": "",
     "whatsappNumber": "",
     "dateOfBirth": "",
     "gender": "",
-    "dateOfAvailability": ""
+    "dateOfAvailability": "",
+    "country": "",
   };
 
   void _submit() async {
@@ -96,12 +96,13 @@ Widget build(BuildContext context) {
                 ),
                 const SizedBox(height: 20),
                 _buildTextField("Name *", "name"),
-                _buildTextField("Surname *", "surname"),
+              
                 _buildTextField("Email *", "email"),
                 _buildTextField("WhatsApp Number", "whatsappNumber"),
                 _buildDateField("Date Of Birth *", "dateOfBirth"),
                 _buildDropdownField("Gender *", "gender", ["Male", "Female", "Prefer not to say"]),
                 _buildDateField("Date of Availability", "dateOfAvailability"),
+                _buildTextField("Country", "country"),
                 const SizedBox(height: 20),
                 if (_isLoading)
                   Center(
