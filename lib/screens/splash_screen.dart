@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:right_ship/screens/home_page.dart';
 import 'package:right_ship/screens/login_screen.dart';
 import 'package:right_ship/screens/profile_creation_screen.dart';
 import 'package:right_ship/screens/profile_page.dart';
@@ -65,10 +66,16 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ProfilePage(
-                employeeId: employeeId, profileData: decodedEmployeeData),
+            builder: (context) => HomePage(),
           ),
         );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ProfilePage(
+        //         employeeId: employeeId, profileData: decodedEmployeeData),
+        //   ),
+        // );
       }
     } else {
       // User is not logged in, navigate to login screen

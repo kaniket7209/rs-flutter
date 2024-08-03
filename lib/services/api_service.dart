@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -112,43 +111,47 @@ class ApiService {
     }
   }
 
-  static Future<dynamic> updateProfile(Map<String, dynamic> profileData) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/employee/update'),
-      headers: {
-        'Accept': '*/*',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(profileData),
-    );
+ static Future<dynamic> updateProfile(Map<String, dynamic> profileData) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/employee/update'),
+        headers: {
+          'Accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(profileData),
+      );
 
-    if (response.statusCode == 200) {
-      final responseBody = json.decode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      String? existingEmployeeData = prefs.getString('employee_data');
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        final prefs = await SharedPreferences.getInstance();
+        String? existingEmployeeData = prefs.getString('employee_data');
 
-      if (existingEmployeeData != null) {
-        // Parse the existing data
-        Map<String, dynamic> existingDataMap =
-            json.decode(existingEmployeeData);
+        if (existingEmployeeData != null) {
+          // Parse the existing data
+          Map<String, dynamic> existingDataMap = json.decode(existingEmployeeData);
 
-        // Merge the new data with the existing data
-        existingDataMap.addAll(profileData);
+          // Merge the new data with the existing data
+          existingDataMap.addAll(profileData);
 
-        // Save the merged data back to SharedPreferences
-        await prefs.setString('employee_data', jsonEncode(existingDataMap));
+          // Save the merged data back to SharedPreferences
+          await prefs.setString('employee_data', jsonEncode(existingDataMap));
+        } else {
+          // Save the new data if no existing data
+          await prefs.setString('employee_data', jsonEncode(profileData));
+        }
+
+        print("resUpdProfile  $responseBody");
+        return responseBody;
       } else {
-        // Save the new data if no existing data
-        await prefs.setString('employee_data', jsonEncode(profileData));
+        print("HTTP Error: ${response.statusCode}");
+        return {"code": 500, "msg": "Unexpected error"};
       }
-
-      print("resUpdProfile  $responseBody");
-      return responseBody;
-    } else {
-      return {"code": 500, "msg": "Unexpected error"};
+    } catch (e) {
+      print("Exception caught: $e");
+      return {"code": 500, "msg": e.toString()};
     }
   }
-
   static Future<dynamic> getAllAttributes() async {
     final response = await http.post(
       Uri.parse('$baseUrl/attributes/get'),

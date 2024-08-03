@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:right_ship/screens/sea_experience_screen.dart';
 import '../services/api_service.dart';
 import 'address_screen.dart';
 
@@ -18,7 +19,6 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
   final Map<String, dynamic> _profileData = {
     "name": "",
     "surname": "",
-    "contactNumber": "",
     "email": "",
     "whatsappNumber": "",
     "dateOfBirth": "",
@@ -47,7 +47,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AddressScreen(profileData: _profileData),
+            builder: (context) => SeaExperienceScreen(profileData: _profileData),
           ),
         );
       } else {

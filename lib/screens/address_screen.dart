@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:right_ship/services/api_service.dart';
 import 'sea_experience_screen.dart';
 
 class AddressScreen extends StatefulWidget {
@@ -22,16 +23,32 @@ class _AddressScreenState extends State<AddressScreen> {
     "nationality": "",
   };
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       widget.profileData.addAll(_addressData);
-      Navigator.push(
+       _addressData['employee_id'] = widget.profileData['_id'];
+      print("_addressData $_addressData  ${widget.profileData}");
+     
+
+      var success = await ApiService.updateProfile(_addressData);
+
+      
+      if (success['code'] == 200) {
+        Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SeaExperienceScreen(profileData: widget.profileData),
         ),
       );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to update details. Please try again.')),
+        );
+      }
+
+     
     }
   }
 
