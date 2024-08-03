@@ -91,10 +91,7 @@ Widget build(BuildContext context) {
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => ApiService.logout(context),
-                      child: Text('Log Out'),
-                    ),
+                    
                   ],
                 ),
                 const SizedBox(height: 20),

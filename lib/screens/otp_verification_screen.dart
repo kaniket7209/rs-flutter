@@ -1,6 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:right_ship/screens/login_screen.dart';
+import 'package:right_ship/screens/profile_creation_screen.dart';
 // import 'package:right_ship/screens/profile_creation_screen.dart';
 import 'package:right_ship/screens/profile_page.dart';
+import 'package:right_ship/screens/sea_experience_screen.dart';
+import 'package:right_ship/screens/splash_screen.dart';
+import 'package:right_ship/screens/upload_resume_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
@@ -54,14 +62,15 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       print("data is $data");
 
       if (data != null && data['code'] == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                // ProfileCreationScreen(employeeId: data['employee']['_id']),
-                ProfilePage(employeeId: data['employee']['_id'], profileData: data['employee'],)
-          ),
-        );
+        _checkLoginStatus();
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) =>
+        //         // ProfileCreationScreen(employeeId: data['employee']['_id']),
+        //         ProfilePage(employeeId: data['employee']['_id'], profileData: data['employee'],)
+        //   ),
+        // );
       } else {
         _showErrorToast(data['msg']);
       }
@@ -69,6 +78,67 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       _showErrorToast(success['message']);
     }
   }
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final employeeId = prefs.getString('employeeId');
+    final employeeData = prefs.getString('employee_data');
+    print("employeeData $employeeId $employeeData");
+
+    if (employeeData != null && employeeId != null) {
+      final decodedEmployeeData = json.decode(employeeData);
+
+      if (decodedEmployeeData['name'] == null ||
+          decodedEmployeeData['name'].isEmpty) {
+        // Navigate to ProfileCreation if name does not exist or is empty
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileCreationScreen(employeeId: employeeId),
+          ),
+        );
+      } else if (decodedEmployeeData['presentRank'] == null ||
+          decodedEmployeeData['presentRank'].isEmpty) {
+        // Navigate to SeaExperienceScreen if presentRank does not exist or is empty
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                SeaExperienceScreen(profileData: decodedEmployeeData),
+          ),
+        );
+      } 
+      else if (decodedEmployeeData['resume'] == null ||
+          decodedEmployeeData['resume'].isEmpty) {
+        // Navigate to SeaExperienceScreen if presentRank does not exist or is empty
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                UploadResumeScreen(profileData: decodedEmployeeData),
+          ),
+        );
+      }
+      else {
+        // Navigate to ProfilePage if both name and presentRank exist
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(
+                employeeId: employeeId, profileData: decodedEmployeeData),
+          ),
+        );
+      }
+    } else {
+      // User is not logged in, navigate to login screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    }
+  }
+
 
   void _resendOTP() async {
     setState(() {
@@ -89,18 +159,19 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     }
   }
 
-  void _startResendCountdown() {
-    Future.doWhile(() async {
-      if (_resendCountdown > 0) {
-        await Future.delayed(const Duration(seconds: 1));
-        setState(() {
-          _resendCountdown--;
-        });
-        return true;
-      }
-      return false;
-    });
-  }
+void _startResendCountdown() {
+  Future.doWhile(() async {
+    if (!mounted) return false; // Ensure widget is still mounted
+    if (_resendCountdown > 0) {
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() {
+        _resendCountdown--;
+      });
+      return true;
+    }
+    return false;
+  });
+}
 
   void _showErrorToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
