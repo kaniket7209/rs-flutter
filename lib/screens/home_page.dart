@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:motion_tab_bar/MotionTabBar.dart';
+import 'package:right_ship/screens/custom_bottom_navbar.dart';
 import 'dart:convert';
 
 import 'package:right_ship/screens/profile_page.dart';
@@ -65,12 +65,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  int _currentIndex = 0;
+int _currentIndex = 0;
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    if (index == 3 && _currentIndex != 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfilePage(
+            employeeId: employee_data['_id'], // Replace with actual employeeId
+            profileData: employee_data, // Replace with actual profileData
+          ),
+        ),
+      );
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   @override
@@ -155,30 +167,9 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-      bottomNavigationBar: MotionTabBar(
-        labels: ["Home", "Settings", "Save Jobs", "Profile"],
-        initialSelectedTab: "Home",
-        tabIconColor: Colors.black,
-        tabSelectedColor: Color(0xff1F5882),
-        textStyle: TextStyle(color: Colors.black),
-        onTabItemSelected: (int value) {
-          setState(() {
-            _currentIndex = value;
-          });
-          if (value == 3) {
-            // Assuming Profile tab is at index 3
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProfilePage(
-                  employeeId: employee_data['_id'], // Replace with actual employeeId
-                  profileData: employee_data, // Replace with actual profileData
-                ),
-              ),
-            );
-          }
-        },
-        icons: [Icons.home, Icons.settings, Icons.save, Icons.person],
+     bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTabItemSelected: _onTabTapped,
       ),
     );
   }

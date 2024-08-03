@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:right_ship/screens/custom_bottom_navbar.dart';
+import 'package:right_ship/screens/home_page.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -66,6 +68,22 @@ class _ProfilePageState extends State<ProfilePage> {
         const SnackBar(
             content: Text('employee_id is not present in the payload.')),
       );
+    }
+  }
+   int _currentIndex = 3;
+
+  void _onTabTapped(int index) {
+    if (index == 0 && _currentIndex != 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+      );
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
     }
   }
 
@@ -388,7 +406,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
+              
             ),
+            bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTabItemSelected: _onTabTapped,
+      ),
     );
   }
 
