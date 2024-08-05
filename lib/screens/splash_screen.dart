@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                SeaExperienceScreen(profileData: decodedEmployeeData),
+                SeaExperienceScreen(profileData: decodedEmployeeData, employeeId: employeeId,),
           ),
         );
       } 

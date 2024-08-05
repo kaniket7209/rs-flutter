@@ -47,7 +47,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SeaExperienceScreen(profileData: _profileData),
+            builder: (context) => SeaExperienceScreen(profileData: _profileData,employeeId:widget.employeeId),
           ),
         );
       } else {

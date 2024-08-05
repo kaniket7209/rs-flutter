@@ -103,7 +103,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                SeaExperienceScreen(profileData: decodedEmployeeData),
+                SeaExperienceScreen(profileData: decodedEmployeeData, employeeId: employeeId,),
           ),
         );
       } 

@@ -5,8 +5,9 @@ import 'upload_resume_screen.dart';
 
 class SeaExperienceScreen extends StatefulWidget {
   final Map<String, dynamic> profileData;
+  final String employeeId;
 
-  const SeaExperienceScreen({required this.profileData, super.key});
+  const SeaExperienceScreen({required this.profileData, super.key,  required this.employeeId});
 
   @override
   _SeaExperienceScreenState createState() => _SeaExperienceScreenState();
@@ -47,7 +48,7 @@ class _SeaExperienceScreenState extends State<SeaExperienceScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       widget.profileData.addAll(_seaExperienceData);
-      _seaExperienceData['employee_id'] = widget.profileData['_id'];
+      _seaExperienceData['employee_id'] = widget.employeeId;
       print("_seaExperienceData $_seaExperienceData");
       setState(() {
         _isLoading = true;
@@ -58,6 +59,7 @@ class _SeaExperienceScreenState extends State<SeaExperienceScreen> {
       setState(() {
         _isLoading = false;
       });
+      print("success  $success");
       if (success['code'] == 200) {
         Navigator.push(
           context,

@@ -126,7 +126,7 @@ class ApiService {
         final responseBody = json.decode(response.body);
         final prefs = await SharedPreferences.getInstance();
         String? existingEmployeeData = prefs.getString('employee_data');
-
+print("resUpdProfile  $responseBody  $existingEmployeeData");
         if (existingEmployeeData != null) {
           // Parse the existing data
           Map<String, dynamic> existingDataMap = json.decode(existingEmployeeData);
@@ -141,7 +141,7 @@ class ApiService {
           await prefs.setString('employee_data', jsonEncode(profileData));
         }
 
-        print("resUpdProfile  $responseBody");
+        
         return responseBody;
       } else {
         print("HTTP Error: ${response.statusCode}");
