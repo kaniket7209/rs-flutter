@@ -16,6 +16,25 @@ class _HomePageState extends State<HomePage> {
   List<dynamic> applications = [];
   bool isLoading = true;
   Map<String, dynamic> employee_data = {};
+   int _currentIndex = 0;
+
+  void _onTabTapped(int index) {
+    if (index == 3 && _currentIndex != 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfilePage(
+            employeeId: 'employeeId', // Replace with actual employeeId
+            profileData: {}, // Replace with actual profileData
+          ),
+        ),
+      );
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -23,23 +42,22 @@ class _HomePageState extends State<HomePage> {
     _fetchApplications();
     _fetchPrefsData();
   }
+
   Future<void> _fetchPrefsData() async {
     final prefs = await SharedPreferences.getInstance();
-        String? existingEmployeeData = prefs.getString('employee_data');
-         if (existingEmployeeData != null) {
-          // Parse the existing data
-        
-         setState(() {
-           employee_data = json.decode(existingEmployeeData);
-         });
+    String? existingEmployeeData = prefs.getString('employee_data');
+    if (existingEmployeeData != null) {
+      // Parse the existing data
 
-          // Merge the new data with the existing data
-        
-        }
+      setState(() {
+        employee_data = json.decode(existingEmployeeData);
+      });
+
+      // Merge the new data with the existing data
+    }
   }
+
   Future<void> _fetchApplications() async {
-
-
     final response = await http.post(
       Uri.parse('https://api.rightships.com/company/application/get'),
       headers: {
@@ -65,25 +83,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-int _currentIndex = 0;
-
-  void _onTabTapped(int index) {
-    if (index == 3 && _currentIndex != 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfilePage(
-            employeeId: employee_data['_id'], // Replace with actual employeeId
-            profileData: employee_data, // Replace with actual profileData
-          ),
-        ),
-      );
-    } else {
-      setState(() {
-        _currentIndex = index;
-      });
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +167,7 @@ int _currentIndex = 0;
                 },
               ),
             ),
-     bottomNavigationBar: CustomBottomNavigationBar(
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _currentIndex,
         onTabItemSelected: _onTabTapped,
       ),

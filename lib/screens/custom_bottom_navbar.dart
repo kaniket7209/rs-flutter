@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:motion_tab_bar_v2/motion-tab-bar.dart';
 import 'package:right_ship/screens/profile_page.dart';
 // Import other necessary screens here
-
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTabItemSelected;
@@ -16,7 +15,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return MotionTabBar(
       labels: ["Home", "Settings", "Save Jobs", "Profile"],
-      initialSelectedTab: "Home",
+      initialSelectedTab: currentIndex == 0 ? "Home" : currentIndex == 1 ? "Settings" : currentIndex == 2 ? "Save Jobs" : "Profile",
       tabIconColor: Colors.black,
       tabSelectedColor: Color(0xff1F5882),
       textStyle: TextStyle(color: Colors.black),

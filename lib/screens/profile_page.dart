@@ -23,7 +23,22 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? _profileData;
+  int _currentIndex = 3;
 
+  void _onTabTapped(int index) {
+    if (index == 0 && _currentIndex != 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+      );
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -70,22 +85,8 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
   }
-   int _currentIndex = 3;
 
-  void _onTabTapped(int index) {
-    if (index == 0 && _currentIndex != 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(),
-        ),
-      );
-    } else {
-      setState(() {
-        _currentIndex = index;
-      });
-    }
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     SizedBox(
+                    SizedBox(
                       height: 10,
                     ),
                     _buildProfileHeader(),
@@ -406,9 +407,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              
             ),
-            bottomNavigationBar: CustomBottomNavigationBar(
+      
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _currentIndex,
         onTabItemSelected: _onTabTapped,
       ),
