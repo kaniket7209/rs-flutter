@@ -23,7 +23,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? _profileData;
-  int _currentIndex = 3;
+ int _currentIndex = 3;
 
   void _onTabTapped(int index) {
     if (index == 0 && _currentIndex != 0) {
@@ -221,19 +221,19 @@ class _ProfilePageState extends State<ProfilePage> {
                           _buildSectionTitle('Experience'),
                           _buildDetailTile(
                               'Total Sea Experience (years)',
-                              'totalSeaExperience',
-                              _profileData!['totalSeaExperience'] ?? '',
+                              'totalSeaExperienceYears',
+                              _profileData!['totalSeaExperienceYears'] ?? '',
                               inputType: TextInputType.text),
                           _buildDetailTile(
                               'Total Last Rank Experience',
-                              'totalLastRankExperience',
-                              _profileData!['totalLastRankExperience'] ?? '',
+                              'lastRankExperienceYears',
+                              _profileData!['lastRankExperienceYears'] ?? '',
                               inputType: TextInputType.text),
                           _buildDetailTile('Present Rank', 'presentRank',
                               _profileData!['presentRank'] ?? '',
                               inputType: TextInputType.text),
-                          _buildDetailTile('Last Rank', 'lastRank',
-                              _profileData!['lastRank'] ?? '',
+                          _buildDetailTile('Last Rank', 'presentRank',
+                              _profileData!['presentRank'] ?? '',
                               inputType: TextInputType.text),
                         ],
                       ),
@@ -435,10 +435,9 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 16),
-          if (_profileData!['name'] != null &&
-              _profileData!['surname'] != null) ...[
+          if (_profileData!['name'] != null ) ...[
             Text(
-              '${_profileData!['name']} ${_profileData!['surname']}',
+              '${_profileData!['name']}',
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,

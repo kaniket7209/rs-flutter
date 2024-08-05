@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:right_ship/screens/custom_bottom_navbar.dart';
 import 'dart:convert';
-
 import 'package:right_ship/screens/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:motion_tab_bar_v2/motion-tab-bar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,8 +14,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<dynamic> applications = [];
   bool isLoading = true;
+  String employee_id = '';
   Map<String, dynamic> employee_data = {};
-   int _currentIndex = 0;
+  int _currentIndex = 0;
 
   void _onTabTapped(int index) {
     if (index == 3 && _currentIndex != 3) {
@@ -24,8 +24,8 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(
           builder: (context) => ProfilePage(
-            employeeId: 'employeeId', // Replace with actual employeeId
-            profileData: {}, // Replace with actual profileData
+            employeeId: employee_id, // Replace with actual employeeId
+            profileData: employee_data, // Replace with actual profileData
           ),
         ),
       );
@@ -47,13 +47,10 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     String? existingEmployeeData = prefs.getString('employee_data');
     if (existingEmployeeData != null) {
-      // Parse the existing data
-
       setState(() {
         employee_data = json.decode(existingEmployeeData);
+        employee_id =  prefs.getString('employeeId')!;
       });
-
-      // Merge the new data with the existing data
     }
   }
 
@@ -83,13 +80,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     print("applications $applications");
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+      
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: TextField(
@@ -102,19 +99,21 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
+            color:Color(0xff2E5C99),
               onRefresh: _fetchApplications,
               child: ListView.builder(
                 itemCount: applications.length,
                 itemBuilder: (context, index) {
                   final application = applications[index];
                   return Card(
-                    margin: const EdgeInsets.all(10.0),
+                    color: Colors.white,
+                    // margin: const EdgeInsets.all(10.0),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -141,16 +140,30 @@ class _HomePageState extends State<HomePage> {
                           SizedBox(height: 8),
                           Row(
                             children: [
-                              ElevatedButton(
-                                onPressed: () {},
-                                child: Text('Apply'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xff1F5882),
-                                ),
+                              GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                            
+                            padding: EdgeInsets.symmetric(vertical: 5,horizontal: 15),
+                            decoration: BoxDecoration(
+                              color: Color(0xff2E5C99),
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            child: Center(
+                                child: const Text(
+                              'Apply',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ))),
+                      
+                                
                               ),
                               SizedBox(width: 10),
                               IconButton(
-                                icon: Icon(Icons.bookmark_border),
+                                icon: Icon(Icons.bookmark_border,color: Color(0xff2E5C99),),
                                 onPressed: () {},
                               ),
                             ],
