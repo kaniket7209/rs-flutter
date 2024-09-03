@@ -95,7 +95,7 @@ class _SeaExperienceScreenState extends State<SeaExperienceScreen> {
                   _seaExperienceData['lastVesselType'] ?? '',
                   adminAttributes
                       .firstWhere(
-                          (attr) => attr['name'].toLowerCase() == 'ship type',
+                          (attr) => attr['name'] == 'Ships',
                           orElse: () => {'values': []})['values']
                       .cast<String>(),
                 ),

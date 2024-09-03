@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/custom_bottom_navbar.dart';
 import 'package:right_ship/screens/home_page.dart';
+import 'package:right_ship/screens/home_page_screen.dart';
+import 'package:right_ship/screens/save_and_applied_jobs_screen.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -30,10 +32,20 @@ class _ProfilePageState extends State<ProfilePage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => HomePageScreen(),
         ),
       );
-    } else {
+    }
+
+    else if(index == 2 && _currentIndex != 2){
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SaveAndAppliedJobsScreen(),
+        ),
+      );
+    }
+    else {
       setState(() {
         _currentIndex = index;
       });

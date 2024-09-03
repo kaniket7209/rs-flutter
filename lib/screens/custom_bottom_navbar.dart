@@ -5,27 +5,18 @@ class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTabItemSelected;
 
-  CustomBottomNavigationBar({
-    required this.currentIndex,
-    required this.onTabItemSelected,
-  });
+  CustomBottomNavigationBar({required this.currentIndex, required this.onTabItemSelected,});
 
   @override
   Widget build(BuildContext context) {
     return MotionTabBar(
-      labels: ["Home", "Settings", "Save Jobs", "Profile"],
-      initialSelectedTab: currentIndex == 0
-          ? "Home"
-          : currentIndex == 1
-              ? "Settings"
-              : currentIndex == 2
-                  ? "Save Jobs"
-                  : "Profile",
+      labels: const ["Home", "Settings", "Save Jobs", "Profile"],
+      initialSelectedTab: currentIndex == 0 ? "Home" : currentIndex == 1 ? "Settings" : currentIndex == 2 ? "Save Jobs" : "Profile",
       tabIconColor: Colors.black,
-      tabSelectedColor: Color(0xff1F5882),
-      textStyle: TextStyle(color: Colors.black),
+      tabSelectedColor: const Color(0xff1F5882),
+      textStyle: const TextStyle(color: Colors.black),
       onTabItemSelected: onTabItemSelected,
-      icons: [Icons.home, Icons.settings, Icons.save, Icons.person],
+      icons: const [Icons.home, Icons.settings, Icons.save, Icons.person],
     );
   }
 }

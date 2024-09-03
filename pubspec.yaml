@@ -54,6 +54,7 @@ dependencies:
   url_launcher: ^6.3.0
   motion_tab_bar: ^2.0.4
   motion_tab_bar_v2: ^0.3.0
+  toggle_switch: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +82,8 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/
+    - assets/images/right_ship.png
+    - assets/images/nature.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
