@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/apply_jobs_screen.dart';
 import 'package:right_ship/screens/apply_jobs_screen.dart';
+import 'package:right_ship/screens/bottom_navigation_bar.dart';
 import 'package:right_ship/screens/custom_bottom_navbar.dart';
 import 'package:right_ship/screens/home_page_screen.dart';
 import 'package:right_ship/screens/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+
+import 'package:intl/intl.dart';
 
 class SaveAndAppliedJobsScreen extends StatefulWidget {
   const SaveAndAppliedJobsScreen({super.key});
@@ -58,61 +61,22 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
   @override
   void initState() {
     super.initState();
-
-    // getAppliedJobsList().then((data) {
-    //   for (var item in data) {
-    //     print('--------------------------------------APPLIED DATA IN SP------------------------------------------------>: $item');
-    //   }
-    // });
-    // print('---------------------------------------------------------------------------------------------------');
-    // getSavedJobsList().then((data) {
-    //   // Assuming 'data' is a list or collection
-    //   for (var item in data) {
-    //     print('--------------------------------------SAVED DATA IN SP------------------------------------------------>: $item');
-    //   }
-    // });
-
     _fetchData();
   }
 
-  Future<List<dynamic>> getAppliedJobsList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Get the JSON string from SharedPreferences
-    String? dataFromSP = prefs.getString('applied_data');
-
-    if (dataFromSP == null) {
-      return []; // Return an empty list if no data is found
-    }
-
-    // Convert the JSON string to a List<Map<String, dynamic>>
-    List<dynamic> jsonList = jsonDecode(dataFromSP);
-    return jsonList;
-
-    // Filter out the jobs that are not saved
-    // List<dynamic> appliedJobs = jsonList.where((job) => job['applied_by'] == true).toList();
-
-    // return appliedJobs;
+  Future<List<Map<String, dynamic>>> getAppliedJobsList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? appliedJobsJson = prefs.getString('appliedJobs');
+    return appliedJobsJson != null
+        ? List<Map<String, dynamic>>.from(jsonDecode(appliedJobsJson))
+        : [];
   }
-
-  Future<List<dynamic>> getSavedJobsList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Get the JSON string from SharedPreferences
-    String? dataFromSP = prefs.getString('saved_jobs_data');
-
-    if (dataFromSP == null) {
-      return []; // Return an empty list if no data is found
-    }
-
-    // Convert the JSON string to a List<Map<String, dynamic>>
-    List<dynamic> jsonList = jsonDecode(dataFromSP);
-
-
-    // Filter out the jobs that are not saved
-    //  List<dynamic> savedJobs = jsonList.where((job) => job['save_jobs_applications'] == true).toList();
-
-    return jsonList;
+  Future<List<Map<String, dynamic>>> getSavedJobsList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? saveJobsJson = prefs.getString('saveJobs');
+    return saveJobsJson != null
+        ? List<Map<String, dynamic>>.from(jsonDecode(saveJobsJson))
+        : [];
   }
 
 
@@ -147,6 +111,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:     const Color(0xFFFFFFFF),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFFFFFF),
         // toolbarHeight: 74,
@@ -182,32 +147,6 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Card(
-                //   elevation: 4,color: const Color(0xFFFFFFFF),
-                //   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                //   child: Container(
-                //       width: MediaQuery.of(context).size.width,
-                //       height: 74,
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //         crossAxisAlignment: CrossAxisAlignment.stretch,
-                //         children: [
-                //           Padding(
-                //             padding: const EdgeInsets.only(top: 1,left: 23,bottom: 2.69),
-                //             child: Container(
-                //               height: 70.31,width: 75,child: Image.asset('assets/images/right_ship.png'),
-                //             ),
-                //           ),
-                //           Padding(
-                //             padding: const EdgeInsets.only(top: 20.0,right: 19),
-                //             child: Container(
-                //               height: 35,width: 35,
-                //               child: const Icon(Icons.notifications_none_outlined,size: 35,),),
-                //           ),
-                //         ],
-                //       )
-                //   ),
-                // ),
                 Padding(
                     padding: const EdgeInsets.only(top: 21,left: 39),
                     child: textWidget('Jobs', 'Inter', FontWeight.w700, 20, 0, 0, 0, 0, null)
@@ -219,7 +158,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
           ],
         )
       ),
-      bottomNavigationBar:  CustomBottomNavigationBar(
+      bottomNavigationBar:  CurvedBottomNavBar(
       currentIndex: _currentIndex,
       onTabItemSelected: _onTabTapped,
     ),
@@ -254,6 +193,27 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
     );
   }
 
+  String timeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays >= 365) {
+      return '${(difference.inDays / 365).floor()} year(s) ago';
+    } else if (difference.inDays >= 30) {
+      return '${(difference.inDays / 30).floor()} month(s) ago';
+    } else if (difference.inDays >= 7) {
+      return '${(difference.inDays / 7).floor()} week(s) ago';
+    } else if (difference.inDays >= 1) {
+      return '${difference.inDays} day(s) ago';
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours} hour(s) ago';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes} minute(s) ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
   Widget _buildJobList() {
     // Choose the list based on the toggle index
     List<dynamic> jobsToShow = _toggleIndex == 0 ? savedList : appliedList;
@@ -277,15 +237,19 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
           final openPositionsList = job['open_positions'] as List<dynamic>? ?? [];
           final openPositions = openPositionsList.map((e) => e.toString()).join('   ');
 
-          return Padding(
-            padding: const EdgeInsets.only(top: 21, left: 37, right: 34),
-            child: dataCard(
-              "$companyName | $rsplNo",
-              'Hiring For',
-              hiringFor,
-              'Open Positions',
-              openPositions,
-            ),
+          // Parse the dates
+          final appliedDate = DateTime.parse(job['applied_date'] ?? DateTime.now().toIso8601String());
+          final savedDate = DateTime.parse(job['saved_date'] ?? DateTime.now().toIso8601String());
+          final String formattedAppliedDate = timeAgo(appliedDate);
+          final String formattedSavedDate = timeAgo(savedDate);
+
+          return dataCard(
+            "$companyName | $rsplNo",
+            'Hiring For',
+            hiringFor,
+            'Open Positions',
+            openPositions,
+            _toggleIndex == 0 ? formattedSavedDate : formattedAppliedDate, // Show appropriate date based on toggle index
           );
         } else {
           print('-----------------------Unexpected data format:---------------- $job');
@@ -296,53 +260,60 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
   }
 
 
-  Padding dataCard(String companyAndRPSL, String hiringFor, String hiringPosition, String rankPosition, String rank) {
+  Padding dataCard(String companyAndRPSL, String hiringFor, String hiringPosition, String rankPosition, String rank,String dateandtime) {
     return Padding(
       padding: const EdgeInsets.only(top: 21,left: 37,right: 34),
-      child: Container(
-        height: 217,width: 359,
-        child:  Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10,),
-            textWidget(companyAndRPSL, 'Inter',  FontWeight.w400, 15, 0, 0, 0, 0, null),
-            const SizedBox(height: 12,),
-            textWidget(hiringFor,  'Inter', FontWeight.w700, 16, 0, 0, 0, 0, null),
-            const SizedBox(height: 7,),
-            textWidget(hiringPosition, 'Inter', FontWeight.w400, 15, 0, 0, 0, 0, null),
-            const SizedBox(height: 10,),
-            textWidget(rankPosition, 'Inter', FontWeight.w700, 16, 0, 0, 0, 0, null),
-            const SizedBox(height: 7,),
-            textWidget(rank, 'Inter',FontWeight.w400 , 15, 0, 0, 0, 0, null),
-            const SizedBox(height: 14,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                    height: 31,width: 122,
-                    child: Row(
-                      children: [
-                        SizedBox(height:31,width: 85,
-                          child: OutlinedButton(onPressed: (){}, style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),side: BorderSide(width: 1,color: Color(0x4500000)))),
-                            child: textWidget('Apply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
-                            )
-                        ),
-                        const SizedBox(width: 8,),
-                        SizedBox(height: 29,width: 29,
-                            child: Icon(ispressed ?  Icons.bookmark_border_outlined : Icons.bookmark )
-                        ),
-                      ],
-                    )
-                ),
-                textWidget('Saved today', 'Inter',  FontWeight.w400, 14, 0, 0, 0, 0,const Color(0x8C000000))
-              ],
-            ),
-            const SizedBox(height: 16,),
-            Container(
-              height: 1, // Height of the line
-              color: const Color(0xFF949494), // Color of the line
-            )
-          ],
+      child: Card(
+        elevation: 0,
+        child: Container(
+          color: const Color(0xFFFFFFFF),
+          width: MediaQuery.of(context).size.width,
+          // height: 217,
+          // width: 359,
+          child:  Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10,),
+              textWidget(companyAndRPSL, 'Inter',  FontWeight.w400, 15, 0, 0, 0, 0, null),
+              const SizedBox(height: 12,),
+              textWidget(hiringFor,  'Inter', FontWeight.w700, 16, 0, 0, 0, 0, null),
+              const SizedBox(height: 7,),
+              textWidget(hiringPosition, 'Inter', FontWeight.w400, 15, 0, 0, 0, 0, null),
+              const SizedBox(height: 10,),
+              textWidget(rankPosition, 'Inter', FontWeight.w700, 16, 0, 0, 0, 0, null),
+              const SizedBox(height: 7,),
+              textWidget(rank, 'Inter',FontWeight.w400 , 15, 0, 0, 0, 0, null),
+              const SizedBox(height: 14,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                      height: 31,
+                      width: 122,
+                      child: Row(
+                        children: [
+                          SizedBox(height:31,width: 85,
+                            child: OutlinedButton(onPressed: (){}, style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),side: BorderSide(width: 1,color: Color(0x4500000)))),
+                              child: textWidget('Apply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
+                              )
+                          ),
+                          const SizedBox(width: 8,),
+                          SizedBox(height: 29,width: 29,
+                              child: Icon(ispressed ?  Icons.bookmark_border_outlined : Icons.bookmark )
+                          ),
+                        ],
+                      )
+                  ),
+                  textWidget(dateandtime, 'Inter',  FontWeight.w400, 14, 0, 0, 0, 0,const Color(0x8C000000))
+                ],
+              ),
+              const SizedBox(height: 16,),
+              Container(
+                height: 1, // Height of the line
+                color: const Color(0xFF949494), // Color of the line
+              )
+            ],
+          ),
         ),
       ),
     );

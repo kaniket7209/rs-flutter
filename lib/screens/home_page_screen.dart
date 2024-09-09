@@ -1,10 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/apply_jobs_screen.dart';
-import 'package:right_ship/screens/custom_bottom_navbar.dart';
+import 'package:right_ship/screens/bottom_navigation_bar.dart';
 import 'package:right_ship/screens/profile_page.dart';
 import 'package:right_ship/screens/save_and_applied_jobs_screen.dart';
+import 'package:right_ship/sharedPref/shared_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -61,7 +61,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     textEditingController.addListener(filterList);
   }
 
-
   void filterList() {
     setState(() {
       filteredItems = applications.where((item) {
@@ -93,7 +92,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     }
   }
 
-
   Future<void> _fetchApplications() async {
     final response = await http.post(
       Uri.parse('https://api.rightships.com/company/application/get'),
@@ -106,129 +104,21 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print("------------------Applications Data--------------->  $data");
+      // print("------------------Applications Data--------------->  $data");
 
       setState(() {
         applications = data['applications'];
-        // print('Applications ----------> $applications');
+        // print('Applications: ----------> $applications');
         filteredItems = applications;
         isLoading = false;
       });
-      //storing in shared pref
-      // await storeWholeNewListOfAppliedJobsDataInSharedPref(applications);
-      // await storeWholeNewListWithSavedJobsDataInSharedPref(applications);
+
     } else {
       setState(() {
         isLoading = false;
       });
       throw Exception('Failed to load applications');
     }
-  }
-
-  Future<void> setAppliedJobsList(jsonData) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Convert the List<Map<String, dynamic>> to a JSON string
-    String appliedListData = jsonEncode(jsonData);
-
-    // Store the JSON string in SharedPreferences
-    await prefs.setString('applied_data', appliedListData);
-  }
-
-  Future<List<dynamic>> getAppliedJobsList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Get the JSON string from SharedPreferences
-    String? dataFromSP = prefs.getString('applied_data');
-
-    if (dataFromSP == null) {
-      return []; // Return an empty list if no data is found
-    }
-
-    // Convert the JSON string to a List<Map<String, dynamic>>
-    List<dynamic> jsonList = jsonDecode(dataFromSP);
-    return jsonList;
-  }
-
-  Future<void> storeWholeNewListOfAppliedJobsDataInSharedPref(dynamic appliedData) async {
-    final prefs = await SharedPreferences.getInstance();
-    // print('-----------------------Whole Data: ${jsonEncode(wholeData)}'); // Debugging log
-    List<dynamic> olddata = await getAppliedJobsList();
-
-    // // Remove jobs that were unapplied
-    // olddata?.removeWhere((job) =>
-    // job['application_id'] == appliedData['application_id'] &&
-    //     job['company_id'] == appliedData['company_id']);
-
-    if(prefs.containsKey('applied_data')){
-      print('---------------------------------SHOWING OLD DATA--------------------------------------');
-      olddata.add(appliedData);
-      await setAppliedJobsList(olddata);
-    }
-    else{
-      List<dynamic> newData = [];
-      newData.add(appliedData);
-      print('---------------------------------ADDED NEW DATA--------------------------------------');
-      await setAppliedJobsList(newData);
-    }
-    // await prefs.setString('applied_data', jsonEncode(appliedData));
-
-    print('----------------------------Applied Data stored successfully'); // Confirmation log
-
-  }
-
-
-  Future<void> setSavedJobsList(jsonData) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-
-    // Convert the List<Map<String, dynamic>> to a JSON string
-    String appliedListData = jsonEncode(jsonData);
-
-    // Store the JSON string in SharedPreferences
-    await prefs.setString('saved_jobs_data', appliedListData);
-  }
-
-  Future<List<dynamic>> getSavedJobsList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Get the JSON string from SharedPreferences
-    String? dataFromSP = prefs.getString('saved_jobs_data');
-
-    if (dataFromSP == null) {
-      return []; // Return an empty list if no data is found
-    }
-
-    // Convert the JSON string to a List<Map<String, dynamic>>
-    List<dynamic> jsonList = jsonDecode(dataFromSP);
-    return jsonList;
-  }
-
-  Future<void> storeWholeNewListWithSavedJobsDataInSharedPref(dynamic appliedData) async {
-    final prefs = await SharedPreferences.getInstance();
-    // print('-----------------------Whole Data: ${jsonEncode(wholeData)}'); // Debugging log
-    List<dynamic> olddata = await getSavedJobsList();
-
-    // Remove jobs that were unapplied
-    // olddata.removeWhere((job) =>
-    // job['application_id'] == appliedData['application_id'] &&
-    //     job['company_id'] == appliedData['company_id']);
-
-    if(prefs.containsKey('saved_jobs_data')){
-      print('---------------------------------SHOWING OLD SAVED JOBS DATA--------------------------------------');
-      olddata.add(appliedData);
-      await setSavedJobsList(olddata);
-    }
-    else{
-      List<dynamic> newData = [];
-      newData.add(appliedData);
-      print('---------------------------------ADDED NEW SAVED JOBS DATA--------------------------------------');
-      await setSavedJobsList(newData);
-    }
-    // await prefs.setString('applied_data', jsonEncode(appliedData));
-
-    print('----------------------------SAVED Data stored successfully'); // Confirmation log
-
   }
 
   Future<void> _applyForJob(String employeeId, String appId, String companyId) async {
@@ -241,41 +131,51 @@ class _HomePageScreenState extends State<HomePageScreen> {
         "company_id": companyId,
       }),
     );
-
     // Create the new applied_by entry
     final newAppliedByEntry = {
       "applied_date": DateTime.now().toUtc().toIso8601String(), // current date in UTC format
       "employee_id": employeeId,
     };
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print("Applied successfully-------------->: $data");
+      // print("Applied successfully-------------->: $data");
 
+     List<Map<String, dynamic>>? matchingApplication = [];
 
+      setState(() {
       for (var application in applications) {
         if (application['application_id'] == appId && application['company_id'] == companyId) {
-          print('Match found: $application');
-
-          bool employeeAlreadyApplied = application['applied_by']?.any((appliedBy) => appliedBy['employee_id'] == employeeId) ?? false;
-
-          print("-----------------TRUE OR FALSE : ${employeeAlreadyApplied}");
+          // print('-----------------------------------------Match found-------------------------------------> $application');
+          application['applied_by'] ??= [];
+          bool employeeAlreadyApplied = application['applied_by'].any((appliedBy) => appliedBy['employee_id'] == employeeId);
+          // print("-----------------TRUE OR FALSE : ${employeeAlreadyApplied}");
           if (!employeeAlreadyApplied) {
-            // Ensure 'applied_by' is initialized as a list before adding to it
-            application['applied_by'] ??= [];
             application['applied_by'].add(newAppliedByEntry);
-            print('Employee added for the first time: ${newAppliedByEntry}');
+            // print('Employee added for the first time--------------------------> ${newAppliedByEntry}');
+            matchingApplication.add(application);
+            print('-------------------------------------MATCHING----------------------$matchingApplication');
+            break;
           }
         }
-
       }
-      await storeWholeNewListOfAppliedJobsDataInSharedPref(applications);
-      print('Applications after update: $applications');
+    });
 
+      // Fetch existing applied job list from SharedPreferences
+      List<Map<String, dynamic>> appliedJobsList = await getAppliedJobsList();
+
+      // Add new application to the list
+      appliedJobsList.addAll(matchingApplication);
+
+      print('---------------------Shared Pref------------------------$appliedJobsList');
+
+      // Save the updated list to SharedPreferences
+      await setAppliedJobsList(appliedJobsList);
+
+      print('Applications after update: $appliedJobsList');
       // Fetch the updated applications and refresh UI
       await _fetchApplications();
-
-    } else {
+    }
+    else {
       throw Exception('Failed to apply for the job');
     }
   }
@@ -295,22 +195,27 @@ class _HomePageScreenState extends State<HomePageScreen> {
       final data = jsonDecode(response.body);
       print("UnApplied successfully-------------->: $data");
 
-      // Update the specific application in the list
-      for (var application in applications) {
-        if (application['application_id'] == appId && application['company_id'] == companyId) {
-          // Remove the employee ID from the applied_by array
-          application['applied_by'].removeWhere((unAppliedBy) =>
-          unAppliedBy['employee_id'] == employeeId
-          );
+      // Remove the job from the list in SharedPreferences
+      List<Map<String, dynamic>> appliedJobsList = await getAppliedJobsList();
+
+      // Find and remove the job from the list
+      appliedJobsList.removeWhere((job) => job['application_id'] == appId && job['company_id'] == companyId);
+      print('------------------Unapply SHARED PR------------------$appliedJobsList');
+
+      // Save the updated list to SharedPreferences
+      await setAppliedJobsList(appliedJobsList);
+
+      // Update the local applications list and refresh the UI
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+            // Remove the entire 'applied_by' array
+            application.remove('applied_by');
+          }
         }
-      }
+      });
 
-      // Store updated applications back to SharedPreferences
-      // await storeWholeNewListOfAppliedJobsDataInSharedPref(applications);
-
-      // Fetch the updated applications and refresh UI
       await _fetchApplications();
-
     } else {
       throw Exception('Failed to UnApply');
     }
@@ -336,28 +241,48 @@ class _HomePageScreenState extends State<HomePageScreen> {
         "employee_id": employeeId,
       };
 
-      // Update the specific application in the list
-      for (var application in applications) {
-        if (application['application_id'] == appId && application['company_id'] == companyId) {
-          // Check if the employee ID already exists in the saved jobs application array
-          bool alreadySaved = application['save_jobs_applications']?.any((savedJobs) =>
-          savedJobs['employee_id'] == employeeId) ?? false;
+      List<Map<String,dynamic>>? saveJobsListInSharedPref = [];
 
-          if (!alreadySaved) {
-            // Ensure 'save_jobs_applications' is initialized as a list before adding to it
+      // Update the specific application in the list
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+            // Check if the employee ID already exists in the saved jobs application array
+            bool alreadySaved = application['save_jobs_applications'].any((savedJobs) =>
+            savedJobs['employee_id'] == employeeId) ?? false;
+
+
             application['save_jobs_applications'] ??= [];
-            application['save_jobs_applications'].add(newSaveJobs);
+
+            if (!alreadySaved) {
+              // Ensure 'save_jobs_applications' is initialized as a list before adding to it
+              application['save_jobs_applications'].add(newSaveJobs);
+              saveJobsListInSharedPref.add(application);
+            }
           }
         }
-      }
+      });
 
-      await storeWholeNewListWithSavedJobsDataInSharedPref(applications);
-      print('----------------------Stored saved data------------------> $applications');
+      // Fetch existing applied job list from SharedPreferences
+      List<Map<String, dynamic>> saveJobsList = await getSavedJobsList();
+
+
+      // Add new application to the list
+      saveJobsList.addAll(saveJobsListInSharedPref);
+
+      print('---------------------Shared Pref Saved List------------------------$saveJobsList');
+
+      // Save the updated list to SharedPreferences
+      await setSavedJobsList(saveJobsList);
+
+      print('Applications after update: $saveJobsList');
+      // Fetch the updated applications and refresh UI
 
       // Fetch the updated applications and refresh UI
       await _fetchApplications();
 
-    }else{
+    }
+    else{
       throw Exception('Failed to save for the job');
     }
   }
@@ -377,21 +302,43 @@ class _HomePageScreenState extends State<HomePageScreen> {
       final data = jsonDecode(response.body);
       print("Unsaved Job successfully-------------------------->: $data");
 
-      // Update the specific application in the list
-      for (var application in applications) {
-        if (application['application_id'] == appId && application['company_id'] == companyId) {
-          // Remove the employee ID from the applied_by array
-          application['save_jobs_applications'].removeWhere((unSavedJob) =>
-          unSavedJob['employee_id'] == employeeId
-          );
+      // Remove the job from the list in SharedPreferences
+      List<Map<String, dynamic>> savedJobsList = await getSavedJobsList();
+
+      // Find and remove the job from the list
+      savedJobsList.removeWhere((job) => job['application_id'] == appId && job['company_id'] == companyId);
+
+      print('------------------SAVED SHARED PR------------------$savedJobsList');
+      // Save the updated list to SharedPreferences
+      await setSavedJobsList(savedJobsList);
+
+      // Update the local applications list and refresh the UI
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+            // Remove the entire 'applied_by' array
+            application.remove('save_jobs_applications');
+          }
         }
-      }
+      });
 
-      // Store updated applications back to SharedPreferences
-      // await storeWholeNewListWithSavedJobsDataInSharedPref(applications);
-
-      // Fetch the updated applications and refresh UI
       await _fetchApplications();
+
+      // Update the specific application in the list
+      // for (var application in applications) {
+      //   if (application['application_id'] == appId && application['company_id'] == companyId) {
+      //     // Remove the employee ID from the applied_by array
+      //     application['save_jobs_applications'].removeWhere((unSavedJob) =>
+      //     unSavedJob['employee_id'] == employeeId
+      //     );
+      //   }
+      // }
+      //
+      // // Store updated applications back to SharedPreferences
+      // await storeWholeNewListWithSavedJobsDataInSharedPref(applications);
+      //
+      // // Fetch the updated applications and refresh UI
+      // await _fetchApplications();
 
     } else {
       throw Exception('Failed to UnSaved');
@@ -533,7 +480,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(
+      bottomNavigationBar: CurvedBottomNavBar(
         currentIndex: _currentIndex,
         onTabItemSelected: _onTabTapped,
       ),
@@ -541,29 +488,27 @@ class _HomePageScreenState extends State<HomePageScreen> {
   }
 
   void buttonOnTapFunctionality(bool isAppliedByExist, application) {
-       //button ontap functionality
     if (isAppliedByExist) {
       bool isMatched = application['applied_by'].any((appliedBy) =>
       appliedBy['employee_id'] == employee_id);
 
       if (isMatched) {
-        // If employee_id matches, call unapply API
+        // Call unapply API with logged-in employee ID
         _unApplyForJob(
-            application['applied_by'][0]['employee_id'],
+            employee_id, // Use the logged-in employee ID
             application['application_id'],
             application['company_id']
         );
       } else {
-        // If employee_id does not match, call apply API
+        // Call apply API
         _applyForJob(
             employee_id,
             application['application_id'],
             application['company_id']
         );
       }
-    }
-    else {
-      // If `applied_by` does not exist, just call apply API
+    } else {
+      // If `applied_by` does not exist, call apply API
       _applyForJob(
           employee_id,
           application['application_id'],
@@ -571,6 +516,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       );
     }
   }
+
 
   void iconTapFunctionality(bool isSaved, application) {
     //icon ontap functionality

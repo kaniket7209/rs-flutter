@@ -74,7 +74,7 @@ class _ApplyJobsScreenState extends State<ApplyJobsScreen> {
           children: [
             const SizedBox(height: 5,),
             Container(
-              height: 168,width: 433,
+              // height: 168,width: 433,
               color: const Color(0xFFFFFFFF),
               child: Row(
                 children: [
@@ -216,7 +216,8 @@ class _ApplyJobsScreenState extends State<ApplyJobsScreen> {
   Padding textWidget(String val,String fontFamily,FontWeight fw, double? fontSize, double top,double left,double bottom,double right,Color? color) {
     return Padding(
       padding: EdgeInsets.only(top: top,left: left,bottom: bottom,right: right),
-      child: Text(val,style: TextStyle(fontFamily: fontFamily,fontWeight: fw,fontSize: fontSize,color: color),),
+      child: Text(val,style: TextStyle(fontFamily: fontFamily,fontWeight: fw,fontSize: fontSize,color: color),
+      ),
     );
   }
 
