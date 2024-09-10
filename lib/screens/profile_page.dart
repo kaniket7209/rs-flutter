@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:right_ship/screens/bottom_navigation_bar.dart';
+import 'package:right_ship/screens/curved_bottom_navigation_bar.dart';
 import 'package:right_ship/screens/custom_bottom_navbar.dart';
 import 'package:right_ship/screens/home_page.dart';
 import 'package:right_ship/screens/home_page_screen.dart';

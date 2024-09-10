@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:right_ship/sharedPref/shared_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
@@ -152,6 +153,7 @@ print("resUpdProfile  $responseBody  $existingEmployeeData");
       return {"code": 500, "msg": e.toString()};
     }
   }
+
   static Future<dynamic> getAllAttributes() async {
     final response = await http.post(
       Uri.parse('$baseUrl/attributes/get'),
@@ -214,8 +216,5 @@ print("resUpdProfile  $responseBody  $existingEmployeeData");
     // Navigate to the login screen
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
-
-
-
 
 }

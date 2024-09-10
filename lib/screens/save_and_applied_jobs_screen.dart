@@ -1,15 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:right_ship/screens/apply_jobs_screen.dart';
-import 'package:right_ship/screens/apply_jobs_screen.dart';
-import 'package:right_ship/screens/bottom_navigation_bar.dart';
-import 'package:right_ship/screens/custom_bottom_navbar.dart';
+import 'package:right_ship/screens/curved_bottom_navigation_bar.dart';
 import 'package:right_ship/screens/home_page_screen.dart';
 import 'package:right_ship/screens/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-
 import 'package:intl/intl.dart';
 
 class SaveAndAppliedJobsScreen extends StatefulWidget {
@@ -289,12 +285,13 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
                 children: [
                   Container(
                       height: 31,
-                      width: 122,
+                      // width: 122,
                       child: Row(
                         children: [
-                          SizedBox(height:31,width: 85,
+                          SizedBox(height:31,
+                              // width: 85,
                             child: OutlinedButton(onPressed: (){}, style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),side: BorderSide(width: 1,color: Color(0x4500000)))),
-                              child: textWidget('Apply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
+                              child: textWidget('Unapply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
                               )
                           ),
                           const SizedBox(width: 8,),

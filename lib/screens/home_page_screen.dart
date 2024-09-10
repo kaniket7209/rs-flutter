@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/apply_jobs_screen.dart';
-import 'package:right_ship/screens/bottom_navigation_bar.dart';
+import 'package:right_ship/screens/curved_bottom_navigation_bar.dart';
 import 'package:right_ship/screens/profile_page.dart';
 import 'package:right_ship/screens/save_and_applied_jobs_screen.dart';
 import 'package:right_ship/sharedPref/shared_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+ValueNotifier<bool> jobApplyOrUnapplyStatusNotifier = ValueNotifier(false);
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -145,15 +147,15 @@ class _HomePageScreenState extends State<HomePageScreen> {
       setState(() {
       for (var application in applications) {
         if (application['application_id'] == appId && application['company_id'] == companyId) {
-          // print('-----------------------------------------Match found-------------------------------------> $application');
+          // print('-----------Match found-------------> $application');
           application['applied_by'] ??= [];
           bool employeeAlreadyApplied = application['applied_by'].any((appliedBy) => appliedBy['employee_id'] == employeeId);
-          // print("-----------------TRUE OR FALSE : ${employeeAlreadyApplied}");
+          // print("------------TRUE OR FALSE : ${employeeAlreadyApplied}");
           if (!employeeAlreadyApplied) {
             application['applied_by'].add(newAppliedByEntry);
-            // print('Employee added for the first time--------------------------> ${newAppliedByEntry}');
+            // print('Employee added for the first time--------> ${newAppliedByEntry}');
             matchingApplication.add(application);
-            print('-------------------------------------MATCHING----------------------$matchingApplication');
+            print('----------MATCHING----------$matchingApplication');
             break;
           }
         }
@@ -166,7 +168,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       // Add new application to the list
       appliedJobsList.addAll(matchingApplication);
 
-      print('---------------------Shared Pref------------------------$appliedJobsList');
+      print('------------------Shared Pref---------------------$appliedJobsList');
 
       // Save the updated list to SharedPreferences
       await setAppliedJobsList(appliedJobsList);
@@ -174,6 +176,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
       print('Applications after update: $appliedJobsList');
       // Fetch the updated applications and refresh UI
       await _fetchApplications();
+
+      jobApplyOrUnapplyStatusNotifier.value = true; // Notify apply
+
     }
     else {
       throw Exception('Failed to apply for the job');
@@ -216,6 +221,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
       });
 
       await _fetchApplications();
+      jobApplyOrUnapplyStatusNotifier.value = false; // Notify unapply
+
     } else {
       throw Exception('Failed to UnApply');
     }
@@ -247,17 +254,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
       setState(() {
         for (var application in applications) {
           if (application['application_id'] == appId && application['company_id'] == companyId) {
+
+            application['save_jobs_applications'] ??= [];
             // Check if the employee ID already exists in the saved jobs application array
             bool alreadySaved = application['save_jobs_applications'].any((savedJobs) =>
             savedJobs['employee_id'] == employeeId) ?? false;
-
-
-            application['save_jobs_applications'] ??= [];
 
             if (!alreadySaved) {
               // Ensure 'save_jobs_applications' is initialized as a list before adding to it
               application['save_jobs_applications'].add(newSaveJobs);
               saveJobsListInSharedPref.add(application);
+              break;
             }
           }
         }
@@ -409,21 +416,24 @@ class _HomePageScreenState extends State<HomePageScreen> {
             // List of Applications
             ...filteredItems.map((application) {
 
+              String btnText = "Apply";
+              IconData usedIcon = Icons.bookmark_border_outlined;
+
               // Check if 'applied_by' is not empty
               bool isAppliedByExist = application['applied_by'] != null && application['applied_by'].isNotEmpty;
               // Determine the button text based on employee_id comparison
-              String btnText = "Apply";
               if (isAppliedByExist) {
-                btnText = application['applied_by'].any((appliedBy) =>
-                appliedBy['employee_id'] == employee_id) ? "Unapply" : "Apply";
+                setState(() {
+                  btnText = application['applied_by'].any((appliedBy) => appliedBy['employee_id'] == employee_id) ? "Unapply" : "Apply";
+                });
               }
 
               //check if 'save_jobs_applications' is not empty
               bool isSavedJobExist = application['save_jobs_applications'] != null && application['save_jobs_applications'].isNotEmpty;
-              IconData usedIcon = Icons.bookmark_border_outlined;
               if(isSavedJobExist){
-                usedIcon = application['save_jobs_applications'].any((saveJobs) =>
-                saveJobs['employee_id'] == employee_id) ? Icons.bookmark : Icons.bookmark_border_outlined;
+                setState(() {
+                  usedIcon = application['save_jobs_applications'].any((saveJobs) => saveJobs['employee_id'] == employee_id) ? Icons.bookmark : Icons.bookmark_border_outlined;
+                });
               }
 
               return Column(
@@ -438,32 +448,29 @@ class _HomePageScreenState extends State<HomePageScreen> {
                               MaterialPageRoute(
                                 builder: (context) => ApplyJobsScreen(
                                   application: application,
-                                  // btnText: btnText,
                                   employee_id: employee_id,
-                                  btnOnTap: () async{
-                                    buttonOnTapFunctionality(isAppliedByExist, application);
+                                  applyJobs: () async{
+                                    await _applyForJob(employee_id,  application['application_id'], application['company_id']);
                                   },
-                                  applyForJob: () async {
-                                    await _applyForJob(employee_id, application['application_id'], application['company_id']);
+                                  unapplyJobs: () async{
+                                    await _unApplyForJob(employee_id,  application['application_id'], application['company_id']);
                                   },
-                                  unApplyForJob: () async {
-                                    await _unApplyForJob(employee_id, application['application_id'], application['company_id']);
+                                  saveJobs: () async{
+                                    await _saveJob(employee_id,  application['application_id'], application['company_id']);
                                   },
-                                  // usedIcon: usedIcon,
-                                  iconTap: () async{
-                                    iconTapFunctionality(isSavedJobExist, application);
+                                  unsaveJobs: () async{
+                                    await _unSaveJob(employee_id,  application['application_id'], application['company_id']);
                                   },
-
                                 ),
                               ),
                             );
                           },
-                      (){
-                        iconTapFunctionality(isSavedJobExist,application);
+                      () {
+                        iconTapFunctionality(isSavedJobExist, application);
                       }
                      ,(){
                           //button ontap functionality
-                        buttonOnTapFunctionality(isAppliedByExist, application);
+                         buttonOnTapFunctionality(isAppliedByExist, application);
                        },
                      '${application['company_name']} | ${application['rspl_no']}',
                       'Hiring For',
@@ -488,6 +495,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   }
 
   void buttonOnTapFunctionality(bool isAppliedByExist, application) {
+
     if (isAppliedByExist) {
       bool isMatched = application['applied_by'].any((appliedBy) =>
       appliedBy['employee_id'] == employee_id);
@@ -519,7 +527,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
 
   void iconTapFunctionality(bool isSaved, application) {
-    //icon ontap functionality
+    // icon ontap functionality
     if (isSaved) {
       bool isMatched = application['save_jobs_applications'].any((savejobs) =>
       savejobs['employee_id'] == employee_id);
@@ -547,6 +555,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
           application['company_id']
       );
     }
+    // Call to refresh the button state
   }
 
   InkWell dataCard(VoidCallback cardOnTap,VoidCallback iconTap,VoidCallback btnOnTap, String companyAndRPSL, String hiringFor, String hiringPosition, String rankPosition, String rank, String date, IconData icon, String btnText) {

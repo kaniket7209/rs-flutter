@@ -5,199 +5,338 @@ import 'package:right_ship/screens/home_page_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApplyJobsScreen extends StatefulWidget {
-   ApplyJobsScreen({super.key, required this.application,required this.employee_id,required this.btnOnTap, required this.applyForJob, required this.unApplyForJob,  required this.iconTap,});
+   ApplyJobsScreen({super.key, required this.application,required this.employee_id, required this.applyJobs, required this.unapplyJobs, required this.saveJobs, required this.unsaveJobs,});
 
   final Map<String, dynamic> application;
-  // String btnText;
   final String employee_id;
-  final VoidCallback btnOnTap;
-  final VoidCallback applyForJob;
-  final VoidCallback unApplyForJob;
-  // IconData usedIcon;
-  final VoidCallback iconTap;
+  // final VoidCallback btnOnTap;
+  // final VoidCallback iconTap;
+  final Future<void> Function() applyJobs;
+  final Future<void> Function() unapplyJobs;
+  final Future<void> Function() saveJobs;
+  final Future<void> Function() unsaveJobs;
+
 
   @override
   State<ApplyJobsScreen> createState() => _ApplyJobsScreenState();
 }
 
 class _ApplyJobsScreenState extends State<ApplyJobsScreen> {
-
-  bool ispressed = false;
   String btnText = "Apply";
   IconData usedIcon = Icons.bookmark_border_outlined;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _initializeButtonTextAndIcon();
+  }
+
+  void _initializeButtonTextAndIcon() {
+    bool isAppliedByExist = widget.application['applied_by'] != null && widget.application['applied_by'].isNotEmpty;
+    bool isAppliedByUser = isAppliedByExist && widget.application['applied_by'].any((appliedBy) => appliedBy['employee_id'] == widget.employee_id);
 
     setState(() {
-      // Check if 'applied_by' is not empty
-      bool isAppliedByExist = widget.application['applied_by'] != null && widget.application['applied_by'].isNotEmpty;
-      // Determine the button text based on employee_id comparison
+      btnText = isAppliedByUser ? "Unapply" : "Apply";
+      usedIcon = (widget.application['save_jobs_applications'] ?? []).any((saveJobs) => saveJobs['employee_id'] == widget.employee_id)
+          ? Icons.bookmark
+          : Icons.bookmark_border_outlined;
+    });
+  }
 
-      if (isAppliedByExist) {
-        btnText = widget.application['applied_by'].any((appliedBy) =>
-        appliedBy['employee_id'] == widget.employee_id) ? "Unapply" : "Apply";
-      }
+  void buttonOnTapFunctionality() async {
+    bool isAppliedByExist = widget.application['applied_by'] != null && widget.application['applied_by'].isNotEmpty;
+    bool isMatched = isAppliedByExist && widget.application['applied_by'].any((appliedBy) => appliedBy['employee_id'] == widget.employee_id);
 
-      //check if 'save_jobs_applications' is not empty
-      bool isSavedJobExist = widget.application['save_jobs_applications'] != null && widget.application['save_jobs_applications'].isNotEmpty;
-      if(isSavedJobExist){
-        usedIcon = widget.application['save_jobs_applications'].any((saveJobs) =>
-        saveJobs['employee_id'] == widget.employee_id) ? Icons.bookmark : Icons.bookmark_border_outlined;
-      }
+    if (isMatched) {
+      await widget.unapplyJobs();
+      setState(() {
+        btnText = 'Apply';
+      });
+    } else {
+      await widget.applyJobs();
+      setState(() {
+        btnText = 'Unapply';
+      });
+    }
 
+    // Reinitialize button text and icon after API call
+    _initializeButtonTextAndIcon();
+  }
+
+  void iconTapFunctionality() async {
+    bool isAppliedByExist = widget.application['save_jobs_applications'] != null && widget.application['save_jobs_applications'].isNotEmpty;
+    bool isMatched = isAppliedByExist && widget.application['save_jobs_applications'].any((savejobs) => savejobs['employee_id'] == widget.employee_id);
+
+    // Optimistically update the icon state before the API call
+    setState(() {
+      usedIcon = isMatched ? Icons.bookmark_border_outlined : Icons.bookmark;
     });
 
-    final hiringFor = (widget.application['hiring_for'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
-    final openPositions =   (widget.application['open_positions'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
-    final benefits =  (widget.application['benefits'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+    try {
+      if (isMatched) {
+        await widget.unsaveJobs();
+      } else {
+        await widget.saveJobs();
+      }
+    } catch (e) {
+      // If there's an error, revert the icon to the previous state
+      setState(() {
+        usedIcon = isMatched ? Icons.bookmark : Icons.bookmark_border_outlined;
+      });
+      // Optionally show an error message
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update job status')));
+    }
+  }
 
+
+  @override
+  Widget build(BuildContext context) {
+    final hiringFor = (widget.application['hiring_for'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+    final openPositions = (widget.application['open_positions'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+    final benefits = (widget.application['benefits'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: const Color(0xFFFFFFFF),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFFFFFF),
         leading: Container(
-            width: 433,height: 74,
-            child:  SizedBox(height: 40,width: 40,
-              child:
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, weight: 20),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePageScreen()));
-                    },
-                  ),
-
-            )
+          width: 433,
+          height: 74,
+          child: SizedBox(
+            height: 40,
+            width: 40,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, weight: 20),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePageScreen()));
+              },
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 5,),
+            const SizedBox(height: 5),
             Container(
-              // height: 168,width: 433,
               color: const Color(0xFFFFFFFF),
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 22,left: 36.0,bottom: 23),
+                    padding: const EdgeInsets.only(top: 22, left: 36.0, bottom: 23),
                     child: Container(
-                        width: 144,height: 123,decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),border: Border.all(width: 3,color: const Color(0xFF1F5882))),
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.asset('assets/images/nature.png',fit: BoxFit.cover,)
-                        )
+                      width: 144,
+                      height: 123,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(width: 3, color: const Color(0xFF1F5882)),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          'assets/images/nature.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 15,),
+                  const SizedBox(width: 15),
                   Padding(
                     padding: const EdgeInsets.only(top: 21),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        textWidget(widget.application['company_name'] ?? 'N/A', 'Poppins', FontWeight.w500, 24, 0, 0,0,0,null),
-                        const SizedBox(height: 2,),
-                        textWidget("RPSL No ${widget.application['rspl_no'] ?? 'N/A'}", 'Poppins', FontWeight.w300, 14, 0, 0,0,0, const Color(0xFF000000)),
-                        const SizedBox(height: 13,),
+                        Text(
+                          widget.application['company_name'] ?? 'N/A',
+                          style: TextStyle(fontFamily: 'Poppins', fontWeight:  FontWeight.w500, fontSize: 24, color: null),
+                          overflow: TextOverflow.visible,
+                          maxLines: 3,
+                          softWrap: true,
+                        ),
+                        // textWidget(widget.application['company_name'] ?? 'N/A', 'Poppins', FontWeight.w500, 24, 0, 0, 0, 0, null,),
+                        const SizedBox(height: 2),
+                        textWidget(
+                          "RPSL No ${widget.application['rspl_no'] ?? 'N/A'}", 'Poppins', FontWeight.w300, 14, 0, 0, 0, 0, const Color(0xFF000000),),
+                        const SizedBox(height: 13),
                         Row(
                           children: [
-                            SizedBox(height: 35,width: 102,
-                              child: ElevatedButton(onPressed: widget.btnOnTap,
-                                style: ElevatedButton.styleFrom(backgroundColor:const Color(0xFF4E7CD4),shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-                                  child: textWidget(
-                                      btnText,
-                                      'Inter', FontWeight.w500, 14, 0, 0, 0, 0,Colors.white )),
+                            SizedBox(
+                              height: 35,
+                              width: 102,
+                              child: ElevatedButton(
+                                onPressed: buttonOnTapFunctionality,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4E7CD4),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                  ),
+                                ),
+                                child: textWidget(btnText, 'Inter', FontWeight.w500, 14, 0, 0, 0, 0, Colors.white,),),
                             ),
-                            const SizedBox(width: 15,),
-                            SizedBox(height: 29,width: 29,
-                                child: IconButton(icon: Icon(usedIcon), onPressed: widget.iconTap,))
+                            const SizedBox(width: 15),
+                            SizedBox(
+                              height: 29,
+                              width: 29,
+                              child:
+                              IconButton(
+                                icon: Icon(usedIcon),
+                                onPressed:iconTapFunctionality,
+                              ),
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 5,),
-            Container(height: 102,width: 433, color: const Color(0xFFFFFFFF),
+            const SizedBox(height: 5),
+            Container(
+              height: 102,
+              width: 433,
+              color: const Color(0xFFFFFFFF),
               child: Column(
                 children: [
-                  IconAndTextRowWidget(22,38,25,15,widget.application['mobile_no'] ?? 'N/A','Inter',FontWeight.w500,16),
-                  IconAndTextRowWidget(5, 38, 5, 16,widget.application['email'] ?? 'N/A', 'Inter', FontWeight.w500, 16)
-
+                  IconAndTextRowWidget(
+                    22,
+                    38,
+                    25,
+                    15,
+                    widget.application['mobile_no'] ?? 'N/A',
+                    'Inter',
+                    FontWeight.w500,
+                    16,
+                  ),
+                  IconAndTextRowWidget(
+                    5,
+                    38,
+                    5,
+                    16,
+                    widget.application['email'] ?? 'N/A',
+                    'Inter',
+                    FontWeight.w500,
+                    16,
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 5,),
+            const SizedBox(height: 5),
             Container(
-                color: const Color(0xFFFFFFFF),
-                width: 433,
-                child:  Padding(
-                  padding: const EdgeInsets.only(left: 40,top: 15,bottom: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      textWidget('Hiring For', 'Poppins', FontWeight.w500, 20, 0, 0, 0, 0, null),
-                      const SizedBox(height: 6,),
-                      for(var hiring in hiringFor)
-                        textWidget(hiring, 'Poppins', FontWeight.w400, 16,  0, 0, 0, 0, null)
-                    ],
-                  ),
-                )
-            ),
-            const SizedBox(height: 5,),
-            Container(color: const Color(0xFFFFFFFF),
-                width: 433,
-                child:  Padding(
-                  padding: const EdgeInsets.only(top: 21,left: 39,bottom:21 ,right: 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      textWidget('Open Positions','Poppins',FontWeight.w500,20,0,0,0,0,null),
-                      const SizedBox(height: 12,),
-                      for(var position in openPositions)
-                         textWidget(position, 'Poppins', FontWeight.w400, 16, 2, 0,0,0,null),
-                    ],
-                  ),
-                )
-            ),
-            const SizedBox(height: 5,),
-            Container(color: const Color(0xFFFFFFFF),
-               width: 433,
-                child:  Padding(
-                  padding: const EdgeInsets.only(top: 21,left: 39,bottom:21,right: 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      textWidget('Benifits','Poppins',FontWeight.w500,20,0,0,0,0,null),
-                      const SizedBox(height: 12,),
-                      for (var benefit in benefits)
-                        textWidget(benefit, 'Poppins', FontWeight.w400, 16, 2, 0, 0, 0, null),
-                    ],
-                  ),
-                )
-            ),
-            const SizedBox(height: 5,),
-            Container(color: const Color(0xFFFFFFFF),
-                width: 433,
-                child:  Column(
+              color: const Color(0xFFFFFFFF),
+              width: 433,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 40, top: 15, bottom: 20),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    textWidget('Description', 'Poppins', FontWeight.w500, 20, 21, 39, 0, 0, null),
-                    textWidget(widget.application['description'], 'Poppins', FontWeight.w400, 16, 11, 38, 15, 39, null)
+                    textWidget(
+                      'Hiring For',
+                      'Poppins',
+                      FontWeight.w500,
+                      20,
+                      0,
+                      0,
+                      0,
+                      0,
+                      null,
+                    ),
+                    const SizedBox(height: 6),
+                    for (var hiring in hiringFor)
+                      textWidget(
+                        hiring,
+                        'Poppins',
+                        FontWeight.w400,
+                        16,
+                        0,
+                        0,
+                        0,
+                        0,
+                        null,
+                      ),
                   ],
-                )
-            )
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Container(
+              color: const Color(0xFFFFFFFF),
+              width: 433,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 21, left: 39, bottom: 21),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    textWidget(
+                      'Open Positions',
+                      'Poppins',
+                      FontWeight.w500,
+                      20,
+                      0,
+                      0,
+                      0,
+                      0,
+                      null,
+                    ),
+                    const SizedBox(height: 12),
+                    for (var position in openPositions)
+                      textWidget(
+                        position,
+                        'Poppins',
+                        FontWeight.w400,
+                        16,
+                        2,
+                        0,
+                        0,
+                        0,
+                        null,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Container(
+              color: const Color(0xFFFFFFFF),
+              width: 433,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 21, left: 39, bottom: 21),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    textWidget(
+                      'Benefits',
+                      'Poppins',
+                      FontWeight.w500,
+                      20,
+                      0,
+                      0,
+                      0,
+                      0,
+                      null,
+                    ),
+                    const SizedBox(height: 12),
+                    for (var benefit in benefits)
+                      textWidget(
+                        benefit,
+                        'Poppins',
+                        FontWeight.w400,
+                        16,
+                        2,
+                        0,
+                        0,
+                        0,
+                        null,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-
   Row IconAndTextRowWidget(double topIconPadding,double leftIconPadding,double topTextPadding,double leftTextPadding,String val,String fontFamily,FontWeight fw, double fontSize) {
     return Row(
       children: [
@@ -220,5 +359,4 @@ class _ApplyJobsScreenState extends State<ApplyJobsScreen> {
       ),
     );
   }
-
 }
