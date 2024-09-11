@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/apply_jobs_screen.dart';
-import 'package:right_ship/screens/curved_bottom_navigation_bar.dart';
+import 'package:right_ship/screens/bottom_navigation_bar.dart';
 import 'package:right_ship/screens/profile_page.dart';
 import 'package:right_ship/screens/save_and_applied_jobs_screen.dart';
+import 'package:right_ship/screens/settings_screen.dart';
 import 'package:right_ship/sharedPref/shared_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
-ValueNotifier<bool> jobApplyOrUnapplyStatusNotifier = ValueNotifier(false);
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -44,6 +43,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => SaveAndAppliedJobsScreen()
+        ),
+      );
+    }
+    else if(index == 1 && _currentIndex !=1 ){
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SettingsScreen()
         ),
       );
     }
@@ -177,8 +184,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
       // Fetch the updated applications and refresh UI
       await _fetchApplications();
 
-      jobApplyOrUnapplyStatusNotifier.value = true; // Notify apply
-
     }
     else {
       throw Exception('Failed to apply for the job');
@@ -221,7 +226,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
       });
 
       await _fetchApplications();
-      jobApplyOrUnapplyStatusNotifier.value = false; // Notify unapply
 
     } else {
       throw Exception('Failed to UnApply');

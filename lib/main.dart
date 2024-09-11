@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/apply_jobs_screen.dart';
-import 'package:right_ship/screens/curved_bottom_navigation_bar.dart';
+import 'package:right_ship/screens/bottom_navigation_bar.dart';
 import 'package:right_ship/screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';

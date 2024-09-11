@@ -1,12 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:right_ship/screens/curved_bottom_navigation_bar.dart';
+import 'package:right_ship/screens/bottom_navigation_bar.dart';
 import 'package:right_ship/screens/home_page_screen.dart';
 import 'package:right_ship/screens/profile_page.dart';
+import 'package:right_ship/screens/settings_screen.dart';
+import 'package:right_ship/sharedPref/shared_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+
 
 class SaveAndAppliedJobsScreen extends StatefulWidget {
   const SaveAndAppliedJobsScreen({super.key});
@@ -16,7 +20,7 @@ class SaveAndAppliedJobsScreen extends StatefulWidget {
 }
 
 class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
-
+  List<dynamic> applications = [];
   List<dynamic> savedList = [];
   List<dynamic> appliedList = [];
   int _currentIndex = 2;
@@ -36,7 +40,6 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         ),
       );
     }
-
     else if(index ==3 && _currentIndex != 3){
       Navigator.pushReplacement(
         context,
@@ -48,12 +51,21 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         ),
       );
     }
+    else if(index == 1 && _currentIndex !=1 ){
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SettingsScreen()
+        ),
+      );
+    }
     else {
       setState(() {
         _currentIndex = index;
       });
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -74,7 +86,6 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         ? List<Map<String, dynamic>>.from(jsonDecode(saveJobsJson))
         : [];
   }
-
 
   Future<void> _fetchData() async {
     setState(() {
@@ -102,6 +113,263 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
       });
     }
   }
+
+  Future<void> _fetchApplications() async {
+    final response = await http.post(
+      Uri.parse('https://api.rightships.com/company/application/get'),
+      headers: {
+        'Accept': '*/*',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // print("------------------Applications Data--------------->  $data");
+
+      setState(() {
+        applications = data['applications'];
+        // print('Applications: ----------> $applications');
+        // filteredItems = applications;
+        isLoading = false;
+      });
+
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      throw Exception('Failed to load applications');
+    }
+  }
+
+  Future<void> _applyForJob(String employeeId, String appId, String companyId) async {
+    final response = await http.post(
+      Uri.parse('https://api.rightships.com/employee/apply_job'),
+      headers: {'Accept': '*/*', 'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "employee_id": employeeId,
+        "application_id": appId,
+        "company_id": companyId,
+      }),
+    );
+    // Create the new applied_by entry
+    final newAppliedByEntry = {
+      "applied_date": DateTime.now().toUtc().toIso8601String(), // current date in UTC format
+      "employee_id": employeeId,
+    };
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // print("Applied successfully-------------->: $data");
+
+      List<Map<String, dynamic>>? matchingApplication = [];
+
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+            // print('-----------Match found-------------> $application');
+            application['applied_by'] ??= [];
+            bool employeeAlreadyApplied = application['applied_by'].any((appliedBy) => appliedBy['employee_id'] == employeeId);
+            // print("------------TRUE OR FALSE : ${employeeAlreadyApplied}");
+            if (!employeeAlreadyApplied) {
+              application['applied_by'].add(newAppliedByEntry);
+              // print('Employee added for the first time--------> ${newAppliedByEntry}');
+              matchingApplication.add(application);
+              print('----------MATCHING----------$matchingApplication');
+              break;
+            }
+          }
+        }
+      });
+
+      // Fetch existing applied job list from SharedPreferences
+      List<Map<String, dynamic>> appliedJobsList = await getAppliedJobsList();
+
+      // Add new application to the list
+      appliedJobsList.addAll(matchingApplication);
+
+      print('------------------Shared Pref---------------------$appliedJobsList');
+
+      // Save the updated list to SharedPreferences
+      await setAppliedJobsList(appliedJobsList);
+
+      print('Applications after update: $appliedJobsList');
+      // Fetch the updated applications and refresh UI
+      await _fetchApplications();
+
+    }
+    else {
+      throw Exception('Failed to apply for the job');
+    }
+  }
+
+  Future<void> _unApplyForJob(String employeeId, String appId, String companyId) async {
+    final response = await http.post(
+      Uri.parse('https://api.rightships.com/employee/unapply'),
+      headers: {'Accept': '*/*', 'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "employee_id": employeeId,
+        "application_id": appId,
+        "company_id": companyId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("UnApplied successfully-------------->: $data");
+
+      // Remove the job from the list in SharedPreferences
+      List<Map<String, dynamic>> appliedJobsList = await getAppliedJobsList();
+
+      // Find and remove the job from the list
+      appliedJobsList.removeWhere((job) => job['application_id'] == appId && job['company_id'] == companyId);
+      print('------------------Unapply SHARED PR------------------$appliedJobsList');
+
+      // Save the updated list to SharedPreferences
+      await setAppliedJobsList(appliedJobsList);
+
+      // Update the local applications list and refresh the UI
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+            // Remove the entire 'applied_by' array
+            application.remove('applied_by');
+          }
+        }
+      });
+
+      await _fetchApplications();
+
+    } else {
+      throw Exception('Failed to UnApply');
+    }
+  }
+
+  Future<void> _saveJob(String employeeId, String appId, String companyId) async{
+    final response = await http.post(Uri.parse('https://api.rightships.com/employee/save_jobs'),
+        headers: {'Accept': '*/*', 'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "employee_id": employeeId,
+          "application_id": appId,
+          "company_id": companyId,
+        })
+    );
+
+    if(response.statusCode == 200){
+      final data = jsonDecode(response.body);
+      print('---------------------------------Saved Successfully-----------------------------> $data');
+
+      //create the new saved jobs
+      final newSaveJobs = {
+        'saved_date' : DateTime.now().toUtc().toIso8601String(),
+        "employee_id": employeeId,
+      };
+
+      List<Map<String,dynamic>>? saveJobsListInSharedPref = [];
+
+      // Update the specific application in the list
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+
+            application['save_jobs_applications'] ??= [];
+            // Check if the employee ID already exists in the saved jobs application array
+            bool alreadySaved = application['save_jobs_applications'].any((savedJobs) =>
+            savedJobs['employee_id'] == employeeId) ?? false;
+
+            if (!alreadySaved) {
+              // Ensure 'save_jobs_applications' is initialized as a list before adding to it
+              application['save_jobs_applications'].add(newSaveJobs);
+              saveJobsListInSharedPref.add(application);
+              break;
+            }
+          }
+        }
+      });
+
+      // Fetch existing applied job list from SharedPreferences
+      List<Map<String, dynamic>> saveJobsList = await getSavedJobsList();
+
+
+      // Add new application to the list
+      saveJobsList.addAll(saveJobsListInSharedPref);
+
+      print('---------------------Shared Pref Saved List------------------------$saveJobsList');
+
+      // Save the updated list to SharedPreferences
+      await setSavedJobsList(saveJobsList);
+
+      print('Applications after update: $saveJobsList');
+      // Fetch the updated applications and refresh UI
+
+      // Fetch the updated applications and refresh UI
+      await _fetchApplications();
+
+    }
+    else{
+      throw Exception('Failed to save for the job');
+    }
+  }
+
+  Future<void> _unSaveJob(String employeeId, String appId, String companyId) async{
+    final response = await http.post(
+      Uri.parse('https://api.rightships.com/employee/unsave'),
+      headers: {'Accept': '*/*', 'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "employee_id": employeeId,
+        "application_id": appId,
+        "company_id": companyId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("Unsaved Job successfully-------------------------->: $data");
+
+      // Remove the job from the list in SharedPreferences
+      List<Map<String, dynamic>> savedJobsList = await getSavedJobsList();
+
+      // Find and remove the job from the list
+      savedJobsList.removeWhere((job) => job['application_id'] == appId && job['company_id'] == companyId);
+
+      print('------------------SAVED SHARED PR------------------$savedJobsList');
+      // Save the updated list to SharedPreferences
+      await setSavedJobsList(savedJobsList);
+
+      // Update the local applications list and refresh the UI
+      setState(() {
+        for (var application in applications) {
+          if (application['application_id'] == appId && application['company_id'] == companyId) {
+            // Remove the entire 'applied_by' array
+            application.remove('save_jobs_applications');
+          }
+        }
+      });
+
+      await _fetchApplications();
+
+      // Update the specific application in the list
+      // for (var application in applications) {
+      //   if (application['application_id'] == appId && application['company_id'] == companyId) {
+      //     // Remove the employee ID from the applied_by array
+      //     application['save_jobs_applications'].removeWhere((unSavedJob) =>
+      //     unSavedJob['employee_id'] == employeeId
+      //     );
+      //   }
+      // }
+      //
+      // // Store updated applications back to SharedPreferences
+      // await storeWholeNewListWithSavedJobsDataInSharedPref(applications);
+      //
+      // // Fetch the updated applications and refresh UI
+      // await _fetchApplications();
+
+    } else {
+      throw Exception('Failed to UnSaved');
+    }
+  }
+
+
 
 
   @override
@@ -290,13 +558,30 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
                         children: [
                           SizedBox(height:31,
                               // width: 85,
-                            child: OutlinedButton(onPressed: (){}, style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),side: BorderSide(width: 1,color: Color(0x4500000)))),
-                              child: textWidget('Unapply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
+                            child: OutlinedButton(
+                              onPressed: (){
+                                if(_toggleIndex == 0){
+
+                                }else{
+                                  // _unApplyForJob(employeeId, appId, companyId);
+                                }
+
+                              },
+                              style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),side: BorderSide(width: 1,color: Color(0x4500000)))),
+                              child: textWidget(_toggleIndex == 0 ? 'Apply' : 'Unapply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
                               )
                           ),
                           const SizedBox(width: 8,),
                           SizedBox(height: 29,width: 29,
-                              child: Icon(ispressed ?  Icons.bookmark_border_outlined : Icons.bookmark )
+                              child: IconButton(
+                                onPressed: (){
+                                  if(_toggleIndex == 0){
+                                    // _unSaveJob(employeeId, appId, companyId);
+                                  }else{
+
+                                  }
+                                },
+                                icon: Icon(_toggleIndex == 0 ? Icons.bookmark : Icons.bookmark_border_outlined),)
                           ),
                         ],
                       )
