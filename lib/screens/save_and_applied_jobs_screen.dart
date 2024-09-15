@@ -486,6 +486,8 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
 
     // Debugging: Print the data structure
     print('Jobs to show: $jobsToShow');
+    IconData usedIcon = Icons.bookmark_border_outlined;
+    String btnText = 'Apply';
 
     return Column(
       children:
@@ -510,8 +512,6 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
           final String formattedAppliedDate = timeAgo(appliedDate);
           final String formattedSavedDate = timeAgo(savedDate);
 
-          IconData usedIcon = Icons.bookmark_border_outlined;
-          String btnText = 'Apply';
 
           bool isAppliedByExist = job['applied_by'] != null && job['applied_by'].isNotEmpty;
           bool isAppliedByUser = isAppliedByExist && job['applied_by'].any((appliedBy) => appliedBy['employee_id'] == employee_id);
@@ -590,6 +590,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
     setState(() {
       _fetchData();
     });
+
   }
 
   void iconOnTap(bool isSavedJobExist, Map<String,dynamic> application, IconData usedIcon){

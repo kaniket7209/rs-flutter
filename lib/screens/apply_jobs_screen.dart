@@ -146,25 +146,7 @@ class _ApplyJobsScreenState extends State<ApplyJobsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.application['company_name'] ?? 'N/A',
-                          overflow: TextOverflow.visible,
-                          maxLines: 3,
-                          softWrap: true,
-                        ),
-                        // FittedBox(
-                        //   fit: BoxFit.scaleDown,
-                        //   child: Text(
-                        //     widget.application['company_name'] ?? 'N/A',
-                        //     style: TextStyle(
-                        //       fontFamily: 'Poppins',
-                        //       fontWeight: FontWeight.w500,
-                        //       fontSize: 24,
-                        //       color: Colors.black, // Set your color
-                        //     ),
-                        //   ),
-                        // ),
-                        // textWidget(widget.application['company_name'] ?? 'N/A', 'Poppins', FontWeight.w500, 24, 0, 0, 0, 0, null,),
+                         textWidget(widget.application['company_name'] ?? 'N/A', 'Poppins', FontWeight.w600, 15, 0, 0, 0, 0, null,),
                         const SizedBox(height: 2),
                         textWidget(
                           "RPSL No ${widget.application['rspl_no'] ?? 'N/A'}", 'Poppins', FontWeight.w300, 14, 0, 0, 0, 0, const Color(0xFF000000),),
