@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:right_ship/screens/home_page_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:auto_size_text_field/auto_size_text_field.dart';
 
 class ApplyJobsScreen extends StatefulWidget {
    ApplyJobsScreen({super.key, required this.application,required this.employee_id, required this.applyJobs, required this.unapplyJobs, required this.saveJobs, required this.unsaveJobs,});
@@ -147,11 +148,22 @@ class _ApplyJobsScreenState extends State<ApplyJobsScreen> {
                       children: [
                         Text(
                           widget.application['company_name'] ?? 'N/A',
-                          style: TextStyle(fontFamily: 'Poppins', fontWeight:  FontWeight.w500, fontSize: 24, color: null),
                           overflow: TextOverflow.visible,
                           maxLines: 3,
                           softWrap: true,
                         ),
+                        // FittedBox(
+                        //   fit: BoxFit.scaleDown,
+                        //   child: Text(
+                        //     widget.application['company_name'] ?? 'N/A',
+                        //     style: TextStyle(
+                        //       fontFamily: 'Poppins',
+                        //       fontWeight: FontWeight.w500,
+                        //       fontSize: 24,
+                        //       color: Colors.black, // Set your color
+                        //     ),
+                        //   ),
+                        // ),
                         // textWidget(widget.application['company_name'] ?? 'N/A', 'Poppins', FontWeight.w500, 24, 0, 0, 0, 0, null,),
                         const SizedBox(height: 2),
                         textWidget(

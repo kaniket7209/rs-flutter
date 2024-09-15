@@ -25,7 +25,8 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
   List<dynamic> appliedList = [];
   int _currentIndex = 2;
   String employee_id = '';
-  bool ispressed = false;
+  bool ispressed1 = false;
+  bool ispressed2 = false;
   int _toggleIndex = 0;
   Map<String,dynamic> employee_data = {};
   bool isLoading = false;
@@ -70,6 +71,9 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
   void initState() {
     super.initState();
     _fetchData();
+    _fetchApplications();
+    _fetchPrefsData();
+    _buildJobList();
   }
 
   Future<List<Map<String, dynamic>>> getAppliedJobsList() async {
@@ -79,6 +83,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         ? List<Map<String, dynamic>>.from(jsonDecode(appliedJobsJson))
         : [];
   }
+
   Future<List<Map<String, dynamic>>> getSavedJobsList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? saveJobsJson = prefs.getString('saveJobs');
@@ -143,6 +148,17 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
     }
   }
 
+  Future<void> _fetchPrefsData() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? existingEmployeeData = prefs.getString('employee_data');
+    if (existingEmployeeData != null) {
+      setState(() {
+        employee_data = json.decode(existingEmployeeData);
+        employee_id =  prefs.getString('employeeId')!;
+      });
+    }
+  }
+
   Future<void> _applyForJob(String employeeId, String appId, String companyId) async {
     final response = await http.post(
       Uri.parse('https://api.rightships.com/employee/apply_job'),
@@ -175,7 +191,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
               application['applied_by'].add(newAppliedByEntry);
               // print('Employee added for the first time--------> ${newAppliedByEntry}');
               matchingApplication.add(application);
-              print('----------MATCHING----------$matchingApplication');
+              print('----------Applied----------$matchingApplication');
               break;
             }
           }
@@ -195,6 +211,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
 
       print('Applications after update: $appliedJobsList');
       // Fetch the updated applications and refresh UI
+      await _fetchData();
       await _fetchApplications();
 
     }
@@ -216,7 +233,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print("UnApplied successfully-------------->: $data");
+      print("----------------UnApplied successfully-------------->: $data");
 
       // Remove the job from the list in SharedPreferences
       List<Map<String, dynamic>> appliedJobsList = await getAppliedJobsList();
@@ -238,6 +255,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         }
       });
 
+      await _fetchData();
       await _fetchApplications();
 
     } else {
@@ -302,6 +320,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
       print('Applications after update: $saveJobsList');
       // Fetch the updated applications and refresh UI
 
+      await _fetchData();
       // Fetch the updated applications and refresh UI
       await _fetchApplications();
 
@@ -346,31 +365,13 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         }
       });
 
+      await _fetchData();
       await _fetchApplications();
-
-      // Update the specific application in the list
-      // for (var application in applications) {
-      //   if (application['application_id'] == appId && application['company_id'] == companyId) {
-      //     // Remove the employee ID from the applied_by array
-      //     application['save_jobs_applications'].removeWhere((unSavedJob) =>
-      //     unSavedJob['employee_id'] == employeeId
-      //     );
-      //   }
-      // }
-      //
-      // // Store updated applications back to SharedPreferences
-      // await storeWholeNewListWithSavedJobsDataInSharedPref(applications);
-      //
-      // // Fetch the updated applications and refresh UI
-      // await _fetchApplications();
 
     } else {
       throw Exception('Failed to UnSaved');
     }
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -452,6 +453,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
           setState(() {
             _toggleIndex = index!;
           });
+
         },
       ),
     );
@@ -486,7 +488,8 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
     print('Jobs to show: $jobsToShow');
 
     return Column(
-      children: jobsToShow.map<Widget>((job) {
+      children:
+      jobsToShow.map<Widget>((job) {
         // Print each job to see its structure
         print('Job: $job');
 
@@ -507,13 +510,39 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
           final String formattedAppliedDate = timeAgo(appliedDate);
           final String formattedSavedDate = timeAgo(savedDate);
 
+          IconData usedIcon = Icons.bookmark_border_outlined;
+          String btnText = 'Apply';
+
+          bool isAppliedByExist = job['applied_by'] != null && job['applied_by'].isNotEmpty;
+          bool isAppliedByUser = isAppliedByExist && job['applied_by'].any((appliedBy) => appliedBy['employee_id'] == employee_id);
+
+          bool isSavedJobExist = job['save_jobs_applications'] != null && job['save_jobs_applications'].isNotEmpty;
+          bool isSavedByUser = isSavedJobExist && (job['save_jobs_applications'] ?? []).any((saveJobs) => saveJobs['employee_id'] == employee_id);
+
+          setState(() {
+            btnText = isAppliedByUser ? "Unapply" : "Apply";
+            usedIcon = isSavedByUser ? Icons.bookmark : Icons.bookmark_border_outlined;
+          });
+
+
           return dataCard(
             "$companyName | $rsplNo",
             'Hiring For',
             hiringFor,
             'Open Positions',
             openPositions,
-            _toggleIndex == 0 ? formattedSavedDate : formattedAppliedDate, // Show appropriate date based on toggle index
+            _toggleIndex == 0 ? formattedSavedDate : formattedAppliedDate, // Show appropriate date based on toggle index,
+            job['application_id'],
+            job['company_id'],
+             btnText,
+           usedIcon,
+              (){
+                 _toggleIndex == 0 ? buttonOnTapFunctionality(isAppliedByExist, job,btnText) :  _unApplyForJob(employee_id, job['application_id'],job['company_id']);
+              },
+              (){
+                _toggleIndex == 0 ? _unSaveJob(employee_id, job['application_id'],job['company_id']) : iconOnTap(isAppliedByExist, job,usedIcon);
+                // buttonOnTapFunctionality(isAppliedByExist, applications);
+              }
           );
         } else {
           print('-----------------------Unexpected data format:---------------- $job');
@@ -523,8 +552,72 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
     );
   }
 
+  void buttonOnTapFunctionality(bool isAppliedByExist,Map<String,dynamic> application,String btnText) {
+    if (isAppliedByExist) {
+      bool isMatched = application['applied_by'].any((appliedBy) => appliedBy['employee_id'].toString() == employee_id.toString()
+      );
 
-  Padding dataCard(String companyAndRPSL, String hiringFor, String hiringPosition, String rankPosition, String rank,String dateandtime) {
+      if (isMatched) {
+        _unApplyForJob(
+            employee_id,
+            application['application_id'].toString(),
+            application['company_id'].toString()
+        );
+        setState(() {
+          btnText = 'Apply';
+        });
+
+      } else {
+        _applyForJob(
+            employee_id,
+            application['application_id'].toString(),
+            application['company_id'].toString()
+        );
+        setState(() {
+          btnText = 'Unapply';
+        });
+      }
+    } else {
+      _applyForJob(
+          employee_id,
+          application['application_id'].toString(),
+          application['company_id'].toString()
+      );
+      setState(() {
+        btnText = 'Unapply';
+      });
+    }
+    setState(() {
+      _fetchData();
+    });
+  }
+
+  void iconOnTap(bool isSavedJobExist, Map<String,dynamic> application, IconData usedIcon){
+    if(isSavedJobExist){
+      bool isMatched = application['save_jobs_applications'] ?? [].any((saveJobs) => saveJobs['employee_id'] == employee_id);
+      if(isMatched){
+        _unSaveJob(employee_id, application['application_id'].toString(), application['company_id'].toString());
+        setState(() {
+          usedIcon = Icons.bookmark_border_outlined;
+        });
+      }else{
+        _saveJob(employee_id, application['application_id'].toString(), application['company_id'].toString());
+        setState(() {
+          usedIcon = Icons.bookmark;
+        });
+      }
+    }else{
+      _saveJob(employee_id, application['application_id'].toString(), application['company_id'].toString());
+      setState(() {
+        usedIcon = Icons.bookmark;
+      });
+    }
+    setState(() {
+      _fetchData();
+    });
+  }
+
+  Padding dataCard(String companyAndRPSL, String hiringFor, String hiringPosition, String rankPosition, String rank,String dateandtime, String application_id, String company_id,String btnText, IconData usedIcon, VoidCallback btnPress, VoidCallback iconpress, ) {
     return Padding(
       padding: const EdgeInsets.only(top: 21,left: 37,right: 34),
       child: Card(
@@ -559,29 +652,16 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
                           SizedBox(height:31,
                               // width: 85,
                             child: OutlinedButton(
-                              onPressed: (){
-                                if(_toggleIndex == 0){
-
-                                }else{
-                                  // _unApplyForJob(employeeId, appId, companyId);
-                                }
-
-                              },
+                              onPressed: btnPress,
                               style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),side: BorderSide(width: 1,color: Color(0x4500000)))),
-                              child: textWidget(_toggleIndex == 0 ? 'Apply' : 'Unapply', 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
+                              child: textWidget(_toggleIndex == 1 ? 'Unapply' : btnText, 'Inter', FontWeight.w700, 14, 0, 0, 0, 0, const Color(0xFF2557A7) ),
                               )
                           ),
                           const SizedBox(width: 8,),
                           SizedBox(height: 29,width: 29,
                               child: IconButton(
-                                onPressed: (){
-                                  if(_toggleIndex == 0){
-                                    // _unSaveJob(employeeId, appId, companyId);
-                                  }else{
-
-                                  }
-                                },
-                                icon: Icon(_toggleIndex == 0 ? Icons.bookmark : Icons.bookmark_border_outlined),)
+                                onPressed: iconpress,
+                                icon: Icon(_toggleIndex == 0 ? Icons.bookmark : usedIcon),)
                           ),
                         ],
                       )

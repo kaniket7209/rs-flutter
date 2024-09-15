@@ -55,6 +55,7 @@ dependencies:
   motion_tab_bar: ^2.0.4
   motion_tab_bar_v2: ^0.3.0
   toggle_switch: ^2.3.0
+  auto_size_text_field: ^2.2.4
 
 dev_dependencies:
   flutter_test:
