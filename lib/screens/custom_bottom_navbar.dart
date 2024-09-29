@@ -16,19 +16,19 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   Widget build(BuildContext context) {
     return
       MotionTabBar(
-      labels: const ["Home", "Settings", "Save Jobs", "Profile"],
-      initialSelectedTab: widget.currentIndex == 0 ? "Home" : widget.currentIndex == 1 ? "Settings" : widget.currentIndex == 2 ? "Save Jobs" : "Profile",
+      labels: const ["Home","Save Jobs", "Profile"],
+      initialSelectedTab: widget.currentIndex == 0 ? "Home" : widget.currentIndex == 1 ? "Save Jobs" : "Profile",
       tabIconColor: Colors.black,
       tabBarHeight: 89,
       tabIconSize: 35,
       tabSelectedColor: const Color(0xff1F5882),
       textStyle:  TextStyle(
-          color: widget.currentIndex == 0 || widget.currentIndex == 1 || widget.currentIndex == 2 || widget.currentIndex == 3
+          color: widget.currentIndex == 0 || widget.currentIndex == 1 || widget.currentIndex == 2 
               ? Colors.black // Unselected text color
               : Colors.white, // Selected text color
         ),
       onTabItemSelected: widget.onTabItemSelected,
-      icons: const [Icons.home_outlined, Icons.settings_outlined, Icons.shopping_bag_outlined, Icons.person_outline],
+      icons: const [Icons.home_outlined, Icons.shopping_bag_outlined, Icons.person_outline],
     );
   }
 }

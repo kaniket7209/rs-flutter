@@ -17,7 +17,7 @@ class _AccountCreatedScreenState extends State<AccountCreatedScreen> {
       MaterialPageRoute(
         builder: (context) => ProfilePage(
           profileData: widget.profileData,
-          employeeId: widget.profileData['_id'],
+          employeeId: widget.profileData['employee_id'],
         ),
       ),
     );

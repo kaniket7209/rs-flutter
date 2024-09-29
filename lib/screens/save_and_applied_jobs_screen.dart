@@ -23,7 +23,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
   List<dynamic> applications = [];
   List<dynamic> savedList = [];
   List<dynamic> appliedList = [];
-  int _currentIndex = 2;
+  int _currentIndex = 1;
   String employee_id = '';
   bool ispressed1 = false;
   bool ispressed2 = false;
@@ -41,7 +41,7 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         ),
       );
     }
-    else if(index ==3 && _currentIndex != 3){
+    else if(index ==2 && _currentIndex != 2){
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -52,14 +52,14 @@ class _SaveAndAppliedJobsScreenState extends State<SaveAndAppliedJobsScreen> {
         ),
       );
     }
-    else if(index == 1 && _currentIndex !=1 ){
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SettingsScreen()
-        ),
-      );
-    }
+    // else if(index == 1 && _currentIndex !=1 ){
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => SettingsScreen()
+    //     ),
+    //   );
+    // }
     else {
       setState(() {
         _currentIndex = index;

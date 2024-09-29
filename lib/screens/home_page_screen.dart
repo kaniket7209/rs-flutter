@@ -27,7 +27,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   int _currentIndex = 0;
 
   void _onTabTapped(int index){
-    if (index == 3 && _currentIndex != 3) {
+    if (index == 2 && _currentIndex != 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -38,7 +38,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         ),
       );
     }
-    else if(index == 2 && _currentIndex !=2 ){
+    else if(index == 1 && _currentIndex !=1 ){
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -46,14 +46,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
         ),
       );
     }
-    else if(index == 1 && _currentIndex !=1 ){
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SettingsScreen()
-        ),
-      );
-    }
+    // else if(index == 1 && _currentIndex !=1 ){
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => SettingsScreen()
+    //     ),
+    //   );
+    // }
     else {
       setState(() {
         _currentIndex = index;
@@ -241,7 +241,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         "company_id": companyId,
       })
     );
-
+    print("${jsonDecode(response.body)}  ejneike");
     if(response.statusCode == 200){
       final data = jsonDecode(response.body);
       print('---------------------------------Saved Successfully-----------------------------> $data');

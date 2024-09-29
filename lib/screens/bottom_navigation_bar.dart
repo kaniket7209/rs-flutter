@@ -21,8 +21,8 @@ class _CurvedBottomNavBarState extends State<CurvedBottomNavBar> {
         AnimatedPositioned(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
-          left: (MediaQuery.of(context).size.width / 4) * widget.currentIndex +
-              (MediaQuery.of(context).size.width / 8) - 44.5,  // Adjusted for symmetry
+          left: (MediaQuery.of(context).size.width / 3) * widget.currentIndex +
+              (MediaQuery.of(context).size.width / 6) - 44.5,  // Adjusted for symmetry
           bottom: -12,
           child: CustomPaint(
             painter: SymmetricCurvedItemPainter(),
@@ -49,10 +49,10 @@ class _CurvedBottomNavBarState extends State<CurvedBottomNavBar> {
               icon: Icon(Icons.home_outlined),
               label: 'Home',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              label: 'Settings',
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.settings_outlined),
+            //   label: 'Settings',
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.shopping_bag_outlined),
               label: 'Save Jobs',

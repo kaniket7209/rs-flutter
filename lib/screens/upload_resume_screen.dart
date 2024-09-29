@@ -55,8 +55,8 @@ class _UploadResumeScreenState extends State<UploadResumeScreen> {
       setState(() {
         _isLoading = true;
       });
-
-      var success = await ApiService.updateProfile({"resume":_uploadedFileUrl,"employee_id":widget.profileData['_id']});
+      print("_uploadedFileUrl  $_uploadedFileUrl");
+      var success = await ApiService.updateProfile({"resume":_uploadedFileUrl,"employee_id":widget.profileData['employee_id']});
 
       setState(() {
         _isLoading = false;
@@ -99,6 +99,7 @@ class _UploadResumeScreenState extends State<UploadResumeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

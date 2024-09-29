@@ -28,7 +28,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? _profileData;
- int _currentIndex = 3;
+ int _currentIndex = 2;
 
   void _onTabTapped(int index) {
     if (index == 0 && _currentIndex != 0) {
@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    else if(index == 2 && _currentIndex != 2){
+    else if(index == 1 && _currentIndex != 1){
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -48,14 +48,14 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
     }
-    else if(index == 1 && _currentIndex !=1 ){
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SettingsScreen()
-        ),
-      );
-    }
+    // else if(index == 1 && _currentIndex !=1 ){
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => SettingsScreen()
+    //     ),
+    //   );
+    // }
     else {
       setState(() {
         _currentIndex = index;

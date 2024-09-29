@@ -75,7 +75,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
 
       var success = await ApiService.updateProfile({
         "profile_photo": _uploadedFileUrl,
-        "employee_id": widget.profileData['_id']
+        "employee_id": widget.profileData['employee_id']
       });
 
       setState(() {
